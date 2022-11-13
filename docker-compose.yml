@@ -9,21 +9,24 @@ services:
     container_name: "api"
     build:
       context: .
-      dockerfile: config/api.Dockerfile
+      dockerfile: config/api/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings:DBConnection=Host=localhost; Database=more_community ; Username=postgres; Password=Ituj55@hfll
+      - ASPNETCORE_ENVIRONMENT=Production
     ports:
       - "5000"
+    networks:
+      - dev
 
   client:
     container_name: "client"
     build:
       context: .
-      dockerfile: config/client.Dockerfile
+      dockerfile: config/client/Dockerfile
     ports:
       - "3000"
+    networks:
+      - dev
 
   server:
     container_name: "server"
@@ -35,3 +38,5 @@ services:
     depends_on:
       - api
       - client
+    networks:
+      - dev
