@@ -1,0 +1,37 @@
+﻿version: "3.9"
+
+networks:
+  dev:
+    driver: bridge
+
+services:
+  api:
+    container_name: "api"
+    build:
+      context: .
+      dockerfile: config/api.Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings:DBConnection=Host=localhost; Database=more_community ; Username=postgres; Password=Ituj55@hfll
+    ports:
+      - "5000"
+
+  client:
+    container_name: "client"
+    build:
+      context: .
+      dockerfile: config/client.Dockerfile
+    ports:
+      - "3000"
+
+  server:
+    container_name: "server"
+    image: nginx:alpine
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    depends_on:
+      - api
+      - client
