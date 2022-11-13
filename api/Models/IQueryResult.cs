@@ -2,6 +2,6 @@
 
 public interface IQueryResult
 {
-    protected int Status { get; set; }
-    protected int Message { get; set; }
+    int Status { get; set; }
+    string Message { get; set; }
 }
