@@ -1,0 +1,20 @@
+{
+    "name": "more_community",
+    "version": "0.0.1",
+    "description": "",
+    "scripts": {
+        "publish:server": "docker-compose up --build --force-recreate -d",
+        "update:api": "docker-compose up --build --force-recreate -d api",
+        "update:client": "docker-compose up --build --force-recreate -d client"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Krimsit/MoreCommunity.git"
+    },
+    "author": "Krimsit Studio",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Krimsit/MoreCommunity/issues"
+    },
+    "homepage": "https://github.com/Krimsit/MoreCommunity#readme"
+}
