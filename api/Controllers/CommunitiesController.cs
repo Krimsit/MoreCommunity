@@ -8,7 +8,7 @@ namespace api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class CommunitiesController : Controller
+public class CommunitiesController : ControllerBase
 {
     private readonly DataContext _context;
 
