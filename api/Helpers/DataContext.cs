@@ -6,7 +6,7 @@ using api.Models;
 
 namespace api.Helpers;
 
-public class DataContext: IdentityDbContext<IdentityUser>
+public class DataContext: IdentityDbContext<User>
 {
     protected readonly IConfiguration Configuration;
 
