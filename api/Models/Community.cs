@@ -1,11 +1,55 @@
-﻿namespace api.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-public class Community
+namespace api.Models;
+
+interface ICommunity
+{
+    long Id { get; set; }
+    string Avatar { get; set; }
+    string? Banner { get; set; }
+    string Name { get; set; }
+    string Description { get; set; }
+    string[] Keywords { get; set; }
+}
+
+public class Community : ICommunity
 {
     public long Id { get; set; }
-    public string Avatar { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public int Followers { get; set; }
-    public string[] Keywords { get; set; }
+    public string Avatar { get; set; } = String.Empty;
+    public string? Banner { get; set; } = String.Empty;
+    public string Name { get; set; } = String.Empty;
+    public string Description { get; set; } = String.Empty;
+    public string[] Followers { get; set; } = new string[] { };
+    public string[] Keywords { get; set; } = new string[] { };
+    public string? OwnerId { get; set; }
+    [ForeignKey(("OwnerId"))]
+    public User User { get; set; }
+}
+
+public class CreateCommunity : ICommunity
+{
+    public long Id { get; set; }
+    public string Avatar { get; set; } = String.Empty;
+    public string? Banner { get; set; } = String.Empty;
+    public string Name { get; set; } = String.Empty;
+    public string Description { get; set; } = String.Empty;
+    public string[] Keywords { get; set; } = new string[] { };
+}
+
+public class ResponseCommunity : ICommunity
+{
+    public long Id { get; set; }
+    public string Avatar { get; set; } = String.Empty;
+    
+    public string? Banner { get; set; } = String.Empty;
+    public string Name { get; set; } = String.Empty;
+    public string Description { get; set; } = String.Empty;
+    public int Followers { get; set; } = 0;
+    public string[] Keywords { get; set; } = new string[] { };
+}
+
+public class CommunityAction
+{
+    public long Id { get; set; }
+    public string Action { get; set; }
 }

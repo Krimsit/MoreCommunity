@@ -1,9 +1,17 @@
-﻿namespace api.Models;
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace api.Models;
 
 public class UserRoles
 {
     public const string Admin = "Admin";
     public const string User = "User";
+}
+
+public class User : IdentityUser
+{
+    public long[] FollowedCommunities { get; set; } = new long[] { };
+    public List<Community> MyCommunities { get; set; }
 }
 
 public class RegisterModel

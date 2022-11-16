@@ -17,11 +17,11 @@ namespace api.Controllers;
 [Produces("application/json")]
 public class AuthenticationController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private IConfiguration _configuration;
 
-    public AuthenticationController(DataContext context, IConfiguration configuration, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+    public AuthenticationController(DataContext context, IConfiguration configuration, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
     {
         _configuration = configuration;
         _userManager = userManager;
@@ -39,7 +39,7 @@ public class AuthenticationController : ControllerBase
 
             var authClaims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Name, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
@@ -71,7 +71,7 @@ public class AuthenticationController : ControllerBase
         if (userExists != null)
             return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Такой пользователь уже существует", ""));
 
-        IdentityUser user = new()
+        User user = new()
         {
             Email = model.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
