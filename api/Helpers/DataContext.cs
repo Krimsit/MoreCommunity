@@ -25,5 +25,6 @@ public class DataContext: IdentityDbContext<User>
         base.OnModelCreating(builder);
     }
 
-    public DbSet<Community> Communities { get; set; }
+    public DbSet<Community?> Communities { get; set; }
+    public DbSet<Post> Posts { get; set; }
 }

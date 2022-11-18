@@ -26,11 +26,11 @@ public class CommunitiesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<QueryResult<List<ResponseCommunity>>>> GetAll()
     {
-        List<Community> communities = await _context.Communities.ToListAsync();
+        List<Community?> communities = await _context.Communities.ToListAsync();
 
         List<ResponseCommunity> responseCommunities = new List<ResponseCommunity>();
 
-        foreach (Community community in communities)
+        foreach (Community? community in communities)
         {
             responseCommunities.Add(CreateResponseCommunityObject(community));
         }
@@ -51,7 +51,7 @@ public class CommunitiesController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
         }
 
-        Community community = await CreateDbCommunityObject(model);
+        Community? community = await CreateDbCommunityObject(model);
         
         _context.Communities.Add(community);
         
@@ -86,7 +86,7 @@ public class CommunitiesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult<ResponseCommunity>> Update(long id, CreateCommunity model)
     {
-        Community community = await CreateDbCommunityObject(model);
+        Community? community = await CreateDbCommunityObject(model);
         string? userId = GetUserIdFromJwtToken();
         
         if (id != community.Id || userId == null || userId != community.OwnerId)
@@ -253,7 +253,7 @@ public class CommunitiesController : ControllerBase
     }
 
     // Создание объекта сообщеста, который передаётся на фронт
-    private ResponseCommunity CreateResponseCommunityObject(Community community)
+    private ResponseCommunity CreateResponseCommunityObject(Community? community)
     {
         ResponseCommunity responseCommunity = new ResponseCommunity()
         {
@@ -270,12 +270,12 @@ public class CommunitiesController : ControllerBase
     }
 
     // Создание объекта сообщеста, который записывается в БД
-    private async Task<Community> CreateDbCommunityObject(CreateCommunity model)
+    private async Task<Community?> CreateDbCommunityObject(CreateCommunity model)
     {
         string? userId = GetUserIdFromJwtToken();
         User user = await _userManager.FindByIdAsync(userId);
 
-        Community community = new Community()
+        Community? community = new Community()
         {
             Id = model.Id,
             Avatar = model.Avatar,

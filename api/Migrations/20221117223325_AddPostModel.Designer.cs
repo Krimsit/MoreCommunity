@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using api.Helpers;
@@ -11,9 +12,11 @@ using api.Helpers;
 namespace api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20221117223325_AddPostModel")]
+    partial class AddPostModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -362,17 +365,12 @@ namespace api.Migrations
             modelBuilder.Entity("api.Models.Post", b =>
                 {
                     b.HasOne("api.Models.Community", "Community")
-                        .WithMany("Posts")
+                        .WithMany()
                         .HasForeignKey("CommunityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Community");
-                });
-
-            modelBuilder.Entity("api.Models.Community", b =>
-                {
-                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("api.Models.User", b =>

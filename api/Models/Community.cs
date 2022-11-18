@@ -24,6 +24,7 @@ public class Community : ICommunity
     public string? OwnerId { get; set; }
     [ForeignKey(("OwnerId"))]
     public User User { get; set; }
+    public List<Post?> Posts { get; set; }
 }
 
 public class CreateCommunity : ICommunity
