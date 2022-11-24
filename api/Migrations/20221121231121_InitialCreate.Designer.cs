@@ -12,8 +12,8 @@ using api.Helpers;
 namespace api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221115133637_AddBannerInCommunity")]
-    partial class AddBannerInCommunity
+    [Migration("20221121231121_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -198,6 +198,42 @@ namespace api.Migrations
                     b.ToTable("Communities");
                 });
 
+            modelBuilder.Entity("api.Models.Post", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CommunityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string[]>("Files")
+                        .HasColumnType("text[]");
+
+                    b.Property<string[]>("Likes")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommunityId");
+
+                    b.ToTable("Posts");
+                });
+
             modelBuilder.Entity("api.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -218,6 +254,10 @@ namespace api.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<long[]>("FollowedCommunities")
+                        .IsRequired()
+                        .HasColumnType("bigint[]");
+
+                    b.Property<long[]>("LikedPosts")
                         .IsRequired()
                         .HasColumnType("bigint[]");
 
@@ -324,6 +364,22 @@ namespace api.Migrations
                         .HasForeignKey("OwnerId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("api.Models.Post", b =>
+                {
+                    b.HasOne("api.Models.Community", "Community")
+                        .WithMany("Posts")
+                        .HasForeignKey("CommunityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Community");
+                });
+
+            modelBuilder.Entity("api.Models.Community", b =>
+                {
+                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("api.Models.User", b =>
