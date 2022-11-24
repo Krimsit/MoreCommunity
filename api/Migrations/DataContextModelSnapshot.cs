@@ -154,6 +154,35 @@ namespace api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("api.Models.Comment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("PostId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("api.Models.Community", b =>
                 {
                     b.Property<long>("Id")
@@ -214,11 +243,11 @@ namespace api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string[]>("Files")
-                        .IsRequired()
                         .HasColumnType("text[]");
 
-                    b.Property<int>("Likes")
-                        .HasColumnType("integer");
+                    b.Property<string[]>("Likes")
+                        .IsRequired()
+                        .HasColumnType("text[]");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -251,6 +280,10 @@ namespace api.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<long[]>("FollowedCommunities")
+                        .IsRequired()
+                        .HasColumnType("bigint[]");
+
+                    b.Property<long[]>("LikedPosts")
                         .IsRequired()
                         .HasColumnType("bigint[]");
 
@@ -350,6 +383,17 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("api.Models.Comment", b =>
+                {
+                    b.HasOne("api.Models.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("api.Models.Community", b =>
                 {
                     b.HasOne("api.Models.User", "User")
@@ -373,6 +417,11 @@ namespace api.Migrations
             modelBuilder.Entity("api.Models.Community", b =>
                 {
                     b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("api.Models.Post", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("api.Models.User", b =>

@@ -12,6 +12,7 @@ public class User : IdentityUser
 {
     public long[] FollowedCommunities { get; set; } = new long[] { };
     public List<Community> MyCommunities { get; set; }
+    public long[] LikedPosts { get; set; } = new long[] { };
 }
 
 public class RegisterModel
