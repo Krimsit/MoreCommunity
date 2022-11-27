@@ -2,7 +2,13 @@ import styled from "styled-components"
 
 import { Container } from "@ui"
 
-export const Base = styled(Container).attrs(() => ({
+import { InputValidationType } from "./Input.interface"
+
+export const Base = styled.div`
+  transition: all 0.3s ease;
+`
+
+export const FieldBase = styled(Container).attrs(() => ({
   type: "2"
 }))`
   max-width: 100%;
@@ -30,4 +36,23 @@ export const Field = styled.input`
   &::placeholder {
     font-weight: 300;
   }
+`
+
+export const FieldValidation = styled.div<{ type?: InputValidationType }>`
+  svg {
+    font-size: 24px;
+    fill: ${({ theme, type }) =>
+      type === "error"
+        ? "#AC0000"
+        : type === "success"
+        ? "#32C000"
+        : theme.text.light};
+  }
+`
+
+export const Description = styled.p<{ type?: InputValidationType }>`
+  margin: 10px 0 0;
+  padding: 0;
+  color: ${({ theme, type }) =>
+    type === "error" ? "#AC0000" : theme.text.light};
 `

@@ -5,8 +5,6 @@ import communitiesAPI from "dto/api/CommunitiesAPI"
 
 import Layout from "@layout"
 import Communities from "components/modules/Communities"
-import { Input } from "@ui"
-import { MdSearch } from "react-icons/md"
 
 const CommunitiesPage: NextPage = () => {
   return (

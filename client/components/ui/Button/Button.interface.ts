@@ -1,7 +1,5 @@
 import { MouseEventHandler, ReactNode } from "react"
 
-import { DefaultStyles } from "types/default"
-
 type ButtonType = "button" | "submit" | "reset"
 
 export type ButtonStyleType = "light" | "dark"
@@ -15,6 +13,6 @@ export interface ButtonProps {
   className?: string
 }
 
-export interface StylesBase extends DefaultStyles {
+export interface StylesBase {
   styleType: ButtonStyleType
 }
