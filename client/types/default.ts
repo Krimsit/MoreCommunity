@@ -1,5 +1,5 @@
-import { Theme } from "types/theme"
-
-export interface DefaultStyles {
-  theme?: Theme
+export interface Response<Data> {
+  status: number
+  message: string
+  data: Data
 }

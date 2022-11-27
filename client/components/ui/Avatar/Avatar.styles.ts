@@ -39,9 +39,9 @@ const getImageContainerSize = (
   switch (size) {
     case "small":
       return css`
-        min-width: 50px;
-        width: 50px;
-        height: 50px;
+        min-width: 70px;
+        width: 70px;
+        height: 70px;
       `
     case "middle":
       return css`

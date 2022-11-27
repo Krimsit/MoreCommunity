@@ -43,7 +43,7 @@ const MyApp: FC<AppProps> = ({ Component, pageProps }) => {
         <GlobalStyle />
         <ReactQueryDevtools initialIsOpen={false} />
         <ThemeProvider theme={theme}>
-          <div className={montserrat.className}>
+          <div style={{ height: "100%" }} className={montserrat.className}>
             <Component {...pageProps} />
           </div>
         </ThemeProvider>
