@@ -1,6 +1,6 @@
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 
-import { useCommunityData } from "dto/hooks/Communities"
+import { useCommunity } from "dto/hooks/Communities"
 
 import { Community, QueryWrapper } from "@container"
 import Filter from "./Filter"
@@ -10,7 +10,7 @@ import { Community as ICommunity } from "dto/types/Communities"
 import { Cards, Container, Title } from "./Communities.styles"
 
 const Communities: FC = () => {
-  const { data, status } = useCommunityData()
+  const { data, status } = useCommunity()
 
   const [filteredItems, setFilteredItems] = useState<ICommunity[]>(data || [])
 
@@ -22,15 +22,21 @@ const Communities: FC = () => {
     setFilteredItems(_items || [])
   }
 
+  useEffect(() => {
+    setFilteredItems(data || [])
+  }, [data])
+
   return (
     <Container>
       <Title>Сообщества</Title>
       <Filter onSearch={handleSearch} />
       <QueryWrapper status={status}>
         <Cards>
-          {filteredItems?.map((item) => (
-            <Community key={item.id} {...item} />
-          ))}
+          {filteredItems.length
+            ? filteredItems?.map((item) => (
+                <Community key={item.id} {...item} />
+              ))
+            : "Пока не созданно ни одного сообщества"}
         </Cards>
       </QueryWrapper>
     </Container>

@@ -3,7 +3,7 @@ import styled from "styled-components"
 export const Container = styled.div.attrs(() => ({
   className: "container2"
 }))`
-  padding: 30px 20px 50px !important;
+  padding: 50px 20px !important;
 `
 
 export const Title = styled.h1`

@@ -1,4 +1,3 @@
-import MockAdapter from "axios-mock-adapter"
 import { AxiosResponse } from "axios"
 
 import { api } from "@core"
