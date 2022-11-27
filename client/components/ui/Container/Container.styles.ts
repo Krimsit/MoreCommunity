@@ -51,9 +51,11 @@ const getStylesByTypeAndColor = (
 export const Base = styled.div<StylesBase>`
   border-radius: 13px;
   padding: 10px;
+  max-width: 100%;
   width: max-content;
   min-width: 100px;
   min-height: 100px;
+  box-sizing: border-box;
 
   ${({ theme, type, styleType }) =>
     getStylesByTypeAndColor(
