@@ -1,25 +1,38 @@
 import { FC } from "react"
 import { Hydrate, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import Head from "next/head"
 import { AppProps } from "next/app"
-import { createGlobalStyle } from "styled-components"
+import { createGlobalStyle, ThemeProvider } from "styled-components"
+import { Montserrat } from "@next/font/google"
 
-import { queryClient } from "../core"
+import { queryClient, theme } from "@core"
+
+const montserrat = Montserrat({ subsets: ["latin"] })
 
 const GlobalStyle = createGlobalStyle`
   html, body, #__next {
     height: 100%;
     margin: 0;
     transition: all 0.2s ease;
-    font-family: 'Roboto', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #F5F5F5;
+    background: #333333;
   }
   
   * {
     outline: none;
+  }
+  
+  .container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .container2 {
+    position: relative;
+    max-width: 1420px;
+    margin: 0 auto;
+    padding: 0 20px;
   }
 `
 
@@ -28,16 +41,12 @@ const MyApp: FC<AppProps> = ({ Component, pageProps }) => {
     <QueryClientProvider client={queryClient}>
       <Hydrate state={pageProps.dehydratedState}>
         <GlobalStyle />
-        <Head>
-          <meta name="viewport" content="viewport-fit=cover" />
-          <link rel="manifest" href="/manifest.json" />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Roboto&display=optional"
-            rel="stylesheet"
-          />
-        </Head>
         <ReactQueryDevtools initialIsOpen={false} />
-        <Component {...pageProps} />
+        <ThemeProvider theme={theme}>
+          <div style={{ height: "100%" }} className={montserrat.className}>
+            <Component {...pageProps} />
+          </div>
+        </ThemeProvider>
       </Hydrate>
     </QueryClientProvider>
   )
