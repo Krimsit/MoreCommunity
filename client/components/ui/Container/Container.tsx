@@ -9,12 +9,14 @@ const Container: FC<ContainerProps> = ({
   children,
   type = "1",
   styleType = "light",
-  className
+  className,
+  onClick
 }) => {
   return (
     <Base
       type={type}
       styleType={styleType}
+      onClick={onClick}
       className={classes(className, {
         [`${className}-${styleType}`]: !!className
       })}>

@@ -12,6 +12,7 @@ module.exports = withPWA({
   compiler: {
     styledComponents: true
   },
+  experimental: { appDir: true },
   images: {
     remotePatterns: [
       {

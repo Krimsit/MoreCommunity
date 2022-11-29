@@ -17,9 +17,6 @@ export const Portal = styled.div`
   z-index: 105;
   padding: 2% 0;
   color: ${({ theme }) => theme.text.light};
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `
 
 export const Base = styled.div`
@@ -27,5 +24,7 @@ export const Base = styled.div`
   transition: all 0.2s ease;
   min-width: 200px;
   box-sizing: border-box;
+  width: max-content;
   max-width: 95%;
+  margin: 0 auto;
 `

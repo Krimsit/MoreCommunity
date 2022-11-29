@@ -26,6 +26,10 @@ const Modal: FC<ModalProps> = ({ open, onClose, children }) => {
     }
   }, [])
 
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "auto"
+  }, [open])
+
   useOnClickOutside(baseRef, onClose)
 
   return (

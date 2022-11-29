@@ -9,3 +9,8 @@ export type Community = {
   isStreamOnline?: boolean
   isMyLike?: boolean
 }
+
+export type Follow = {
+  followed: boolean
+  count: number
+}

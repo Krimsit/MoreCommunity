@@ -31,8 +31,8 @@ const Header: FC = () => {
             </LoginButton>
           ) : (
             <Avatar
-              img={data.avatar || ""}
-              alt={data.username}
+              img={data?.avatar || ""}
+              alt={data?.username}
               size="small"
               styleType="dark"
             />
