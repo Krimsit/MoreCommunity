@@ -1,3 +1,6 @@
 export { default as Community } from "./Community/Community"
 export { default as LikeButton } from "./LikeButton/LikeButton"
 export { default as QueryWrapper } from "./QueryWrapper/QueryWrapper"
+export { default as Post } from "./Post/Post"
+export { default as CommentsButton } from "./CommentsButton/CommentsButton"
+export { default as PostDetail } from "./Post/Post"

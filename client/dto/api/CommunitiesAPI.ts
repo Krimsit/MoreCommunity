@@ -1,27 +1,27 @@
-import MockAdapter from "axios-mock-adapter"
 import { AxiosResponse } from "axios"
 
 import { api } from "@core"
 
-import { Community } from "dto/types/Communities"
+import { Community, Follow } from "dto/types/Communities"
 import { Response } from "types/default"
-
-import { CommunitiesFakeData } from "dto/fakeData/Communities"
-
-const fakeApi = new MockAdapter(api)
-
-fakeApi.onGet("/").reply(200, CommunitiesFakeData)
-fakeApi.onGet("/popular").reply(200, CommunitiesFakeData)
-
-// fakeApi.restore()
 
 const _api = {
   getAll: (): Promise<Response<Community[]>> =>
-    api.get("/").then((res: AxiosResponse<Response<Community[]>>) => res.data),
+    api
+      .get("/communities")
+      .then((res: AxiosResponse<Response<Community[]>>) => res.data),
   getPopular: (): Promise<Response<Community[]>> =>
     api
-      .get("/popular")
-      .then((res: AxiosResponse<Response<Community[]>>) => res.data)
+      .get("/communities/popular")
+      .then((res: AxiosResponse<Response<Community[]>>) => res.data),
+  getById: (communityId: number): Promise<Response<Community>> =>
+    api
+      .get(`/communities/${communityId}`)
+      .then((res: AxiosResponse<Response<Community>>) => res.data),
+  follow: (communityId: number): Promise<Response<Follow>> =>
+    api
+      .post(`/communities/${communityId}/follow`)
+      .then((res: AxiosResponse<Response<Follow>>) => res.data)
 }
 
 export default _api

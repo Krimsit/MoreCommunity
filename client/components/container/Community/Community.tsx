@@ -1,4 +1,6 @@
-import { FC } from "react"
+import { FC, useState } from "react"
+
+import { useFollow } from "dto/hooks/Communities"
 
 import { Avatar } from "@ui"
 import { LikeButton } from "@container"
@@ -26,13 +28,35 @@ const Community: FC<
   isMyLike,
   styleType = "light"
 }) => {
+  const { mutateAsync } = useFollow(id)
+
+  const [isLike, setIsLike] = useState<boolean>(!!isMyLike)
+  const [likeCount, setLikeCount] = useState<number>(followers)
+
+  const handleLike = () =>
+    mutateAsync().then((result) => {
+      setIsLike(result.followed)
+      setLikeCount(result.count)
+    })
+
   return (
     <Base styleType={styleType}>
       <Avatar img={avatar} alt={name} size="middle" styleType={styleType} />
-      <Title>{name}</Title>
+      <Title
+        href={{
+          pathname: "/communities/[id]",
+          query: { id: id }
+        }}>
+        {name}
+      </Title>
       <Description>{description}</Description>
       <Controls>
-        <LikeButton count={followers} styleType={styleType} liked={isMyLike} />
+        <LikeButton
+          count={likeCount}
+          liked={isLike}
+          onLike={handleLike}
+          styleType={styleType}
+        />
         {isStreamOnline && (
           <StreamButton styleType={styleType}>
             <StreamStatus />

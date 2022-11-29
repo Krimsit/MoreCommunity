@@ -1,13 +1,9 @@
-import { FC } from "react"
 import { Hydrate, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { AppProps } from "next/app"
 import { createGlobalStyle, ThemeProvider } from "styled-components"
-import { Montserrat } from "@next/font/google"
 
 import { queryClient, theme } from "@core"
-
-const montserrat = Montserrat({ subsets: ["latin"] })
 
 const GlobalStyle = createGlobalStyle`
   html, body, #__next {
@@ -36,16 +32,14 @@ const GlobalStyle = createGlobalStyle`
   }
 `
 
-const MyApp: FC<AppProps> = ({ Component, pageProps }) => {
+const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
     <QueryClientProvider client={queryClient}>
       <Hydrate state={pageProps.dehydratedState}>
         <GlobalStyle />
         <ReactQueryDevtools initialIsOpen={false} />
         <ThemeProvider theme={theme}>
-          <div style={{ height: "100%" }} className={montserrat.className}>
-            <Component {...pageProps} />
-          </div>
+          <Component {...pageProps} />
         </ThemeProvider>
       </Hydrate>
     </QueryClientProvider>

@@ -1,4 +1,5 @@
 import styled from "styled-components"
+import BaseLink from "next/link"
 
 import { Container, Button } from "@ui"
 
@@ -15,12 +16,14 @@ export const Base = styled(Container).attrs(() => ({
   gap: 20px;
 `
 
-export const Title = styled.h3`
+export const Title = styled(BaseLink)`
+  max-width: 100%;
   width: 100%;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-decoration: none;
   margin: 0;
   padding: 0;
   font-weight: 700;
