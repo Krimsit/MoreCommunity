@@ -34,14 +34,6 @@ export const Image = styled(BaseImage).attrs(() => ({
   border-radius: 13px;
 `
 
-export const Video = styled.video`
-  width: 100%;
-  height: 100%;
-  object-position: center;
-  object-fit: cover;
-  border-radius: 13px;
-`
-
 export const Overlay = styled.div`
   position: absolute;
   background-color: rgba(0, 0, 0, 0.5);
@@ -62,7 +54,7 @@ export const Filename = styled.span`
   line-height: 12px;
   transform: translateX(-50%);
   text-align: center;
-  max-width: 100%;
+  max-width: 80%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

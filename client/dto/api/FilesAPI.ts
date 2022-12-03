@@ -9,7 +9,11 @@ const _api = {
   getAll: (postId: number): Promise<Response<File[]>> =>
     api
       .get(`/files/${postId}`)
-      .then((res: AxiosResponse<Response<File[]>>) => res.data)
+      .then((res: AxiosResponse<Response<File[]>>) => res.data),
+  upload: (file: FormData): Promise<Response<File>> =>
+    api
+      .post("/files", file)
+      .then((res: AxiosResponse<Response<File>>) => res.data)
 }
 
 export default _api

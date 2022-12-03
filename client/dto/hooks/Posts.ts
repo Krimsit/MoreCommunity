@@ -7,15 +7,16 @@ import {
 
 import postsAPI from "dto/api/PostsAPI"
 
-import { Post, Like } from "dto/types/Posts"
+import { Post, Like, PostPost, Delete } from "dto/types/Posts"
 import { Response } from "types/default"
+import { AxiosError } from "axios"
 
 export const useAll = (
   communityId: number,
   enabled: boolean
 ): UseQueryResult<Post[]> => {
   return useQuery<Response<Post[]>, Error, Post[]>(
-    [`community_${communityId}`, "posts_all"],
+    [`community_${communityId}`, "posts"],
     () => postsAPI.getAll(communityId),
     {
       select: (response) => response.data,
@@ -23,6 +24,20 @@ export const useAll = (
     }
   )
 }
+
+export const useCreate = (
+  communityId: number
+): UseMutationResult<Post, { [key: string]: string }, PostPost> =>
+  useMutation<Post, { [key: string]: string }, PostPost>(
+    [`community_${communityId}`, "post", "create"],
+    (data) =>
+      postsAPI
+        .create(data, communityId)
+        .then((response) => response.data)
+        .catch((error: AxiosError<Response<{ [key: string]: string }>>) =>
+          Promise.reject(error?.response?.data.data)
+        )
+  )
 
 export const useById = (
   communityId: number,
@@ -37,11 +52,35 @@ export const useById = (
     }
   )
 
+export const useUpdate = (
+  communityId: number,
+  postId: number
+): UseMutationResult<Post, { [key: string]: string }, PostPost> =>
+  useMutation<Post, { [key: string]: string }, PostPost>(
+    [`community_${communityId}`, `post_${postId}`, "update"],
+    (data) =>
+      postsAPI
+        .update(data, communityId, postId)
+        .then((response) => response.data)
+        .catch((error: AxiosError<Response<{ [key: string]: string }>>) =>
+          Promise.reject(error?.response?.data.data)
+        )
+  )
+
+export const useDelete = (
+  communityId: number,
+  postId: number
+): UseMutationResult<Delete, Error, void> =>
+  useMutation<Delete, Error, void>(
+    [`community_${communityId}`, `post_${postId}`, "delete"],
+    () => postsAPI.delete(communityId, postId).then((response) => response.data)
+  )
+
 export const useLike = (
   communityId: number,
   postId: number
 ): UseMutationResult<Like, Error, void> =>
   useMutation<Like, Error, void>(
     [`community_${communityId}`, `post_${postId}`, "like"],
-    () => postsAPI.follow(communityId, postId).then((response) => response.data)
+    () => postsAPI.like(communityId, postId).then((response) => response.data)
   )

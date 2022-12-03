@@ -4,6 +4,5 @@ export type File = {
   id: number
   type: FileType
   url: string
-  alt?: string
-  name?: string
+  name: string
 }

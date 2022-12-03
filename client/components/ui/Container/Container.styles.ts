@@ -1,16 +1,19 @@
-import styled, { css, FlattenSimpleInterpolation } from "styled-components"
+import styled, {
+  css,
+  FlattenSimpleInterpolation,
+  DefaultTheme
+} from "styled-components"
 
 import {
   ContainerStyleType,
   ContainerType,
   StylesBase
 } from "./Container.interface"
-import { Theme } from "types/theme"
 
 const getStylesByTypeAndColor = (
   type: ContainerType,
   styleType: ContainerStyleType,
-  theme: Theme
+  theme: DefaultTheme
 ): FlattenSimpleInterpolation => {
   const _color = styleType === "light" ? theme.light : theme.dark
   const _shadows =

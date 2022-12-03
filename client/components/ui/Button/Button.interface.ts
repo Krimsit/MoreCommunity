@@ -11,6 +11,8 @@ export interface ButtonProps {
   disabled?: boolean
   type?: ButtonType
   className?: string
+  loading?: boolean
+  loader?: ReactNode
 }
 
 export interface StylesBase {

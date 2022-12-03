@@ -1,9 +1,12 @@
 import { Hydrate, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { AppProps } from "next/app"
+import Head from "next/head"
 import { createGlobalStyle, ThemeProvider } from "styled-components"
 
 import { queryClient, theme } from "@core"
+
+import Layout from "@layout"
 
 const GlobalStyle = createGlobalStyle`
   html, body, #__next {
@@ -12,18 +15,18 @@ const GlobalStyle = createGlobalStyle`
     transition: all 0.2s ease;
     background: #333333;
   }
-  
+
   * {
     outline: none;
   }
-  
+
   .container {
     position: relative;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
   }
-  
+
   .container2 {
     position: relative;
     max-width: 1420px;
@@ -34,15 +37,22 @@ const GlobalStyle = createGlobalStyle`
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Hydrate state={pageProps.dehydratedState}>
-        <GlobalStyle />
-        <ReactQueryDevtools initialIsOpen={false} />
-        <ThemeProvider theme={theme}>
-          <Component {...pageProps} />
-        </ThemeProvider>
-      </Hydrate>
-    </QueryClientProvider>
+    <>
+      <Head>
+        <title>More Community</title>
+      </Head>
+      <QueryClientProvider client={queryClient}>
+        <Hydrate state={pageProps.dehydratedState}>
+          <GlobalStyle />
+          <ReactQueryDevtools initialIsOpen={false} />
+          <ThemeProvider theme={theme}>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </ThemeProvider>
+        </Hydrate>
+      </QueryClientProvider>
+    </>
   )
 }
 

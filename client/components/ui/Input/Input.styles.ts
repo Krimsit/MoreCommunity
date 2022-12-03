@@ -5,14 +5,15 @@ import { Container } from "@ui"
 import { InputValidationType } from "./Input.interface"
 
 export const Base = styled.div`
+  max-width: 100%;
+  width: 250px;
   transition: all 0.3s ease;
 `
 
 export const FieldBase = styled(Container).attrs(() => ({
   type: "2"
 }))`
-  max-width: 100%;
-  width: 250px;
+  width: 100%;
   position: relative;
   box-sizing: border-box;
   display: flex;
@@ -25,6 +26,7 @@ export const FieldBase = styled(Container).attrs(() => ({
 
 export const Field = styled.input`
   flex: 1;
+  padding: 0;
   height: 100%;
   background: transparent;
   border: 0;

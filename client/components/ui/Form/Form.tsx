@@ -48,7 +48,7 @@ const FormField: FC<FormFieldProps> = ({
           control={control && control}
           name={name}
           render={({ field }) => {
-            const child = children as ReactElement<any>
+            const child = children as ReactElement
 
             return cloneElement(child, {
               ...field,
@@ -79,7 +79,8 @@ const Form: FC<FormProps> = ({
   defaultValues,
   className,
   name,
-  yupSchema
+  yupSchema,
+  onInit
 }) => {
   const method = useForm({
     mode: validationMode,
@@ -93,6 +94,10 @@ const Form: FC<FormProps> = ({
   useEffect(() => {
     reset(defaultValues)
   }, [defaultValues, reset])
+
+  useEffect(() => {
+    onInit && onInit(method)
+  }, [method, onInit])
 
   return (
     <FormProvider {...method}>

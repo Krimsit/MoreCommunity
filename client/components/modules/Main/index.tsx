@@ -33,9 +33,9 @@ const Main: FC = () => {
         {!!user && (
           <>
             <UserCard />
-            <QueryWrapper status={followedCommunitiesStatus}>
-              <Block>
-                <Title>Сообщества, на которые вы подписанны</Title>
+            <Block>
+              <Title>Сообщества, на которые вы подписанны</Title>
+              <QueryWrapper status={followedCommunitiesStatus}>
                 <Communities>
                   {followedCommunities?.length
                     ? followedCommunities.map((item) => (
@@ -43,14 +43,14 @@ const Main: FC = () => {
                       ))
                     : "Вы не подписанны ни на одно сообщество"}
                 </Communities>
-              </Block>
-            </QueryWrapper>
+              </QueryWrapper>
+            </Block>
           </>
         )}
       </QueryWrapper>
-      <QueryWrapper status={popularCommunitiesStatus}>
-        <Block>
-          <Title>Популярные сообщества</Title>
+      <Block>
+        <Title>Популярные сообщества</Title>
+        <QueryWrapper status={popularCommunitiesStatus}>
           <Communities>
             {popularCommunities?.length
               ? popularCommunities?.map((item) => (
@@ -62,8 +62,8 @@ const Main: FC = () => {
             Все сообщества
             <MdMore />
           </ShowMoreCommunities>
-        </Block>
-      </QueryWrapper>
+        </QueryWrapper>
+      </Block>
     </Container>
   )
 }

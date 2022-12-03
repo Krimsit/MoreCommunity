@@ -3,6 +3,7 @@ import BaseImage from "next/image"
 
 export const Container = styled.section`
   position: relative;
+  padding-bottom: 20px;
 `
 
 export const Banner = styled(BaseImage).attrs(() => ({
@@ -34,6 +35,7 @@ export const Content = styled.div.attrs(() => ({
 `
 
 export const Posts = styled.div`
+  padding: 20px 0 0;
   max-width: 100%;
   display: flex;
   flex-direction: column;

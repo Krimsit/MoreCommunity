@@ -1,6 +1,6 @@
 import styled from "styled-components"
 
-import { Container, Input as BaseInput } from "@ui"
+import { Button, Container, Input as BaseInput } from "@ui"
 
 export const Base = styled(Container).attrs(() => ({
   type: "1",
@@ -81,5 +81,15 @@ export const Question = styled.p`
     line-height: 20px;
     text-decoration-line: underline;
     cursor: pointer;
+  }
+`
+
+export const SendButton = styled(Button).attrs(() => ({
+  styleType: "dark"
+}))`
+  width: 300px;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
   }
 `

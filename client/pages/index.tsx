@@ -1,14 +1,15 @@
 import { NextPage } from "next"
+import Head from "next/head"
 
-import Layout from "@layout"
 import Main from "components/modules/Main"
 
-const Home: NextPage = () => {
-  return (
-    <Layout>
-      <Main />
-    </Layout>
-  )
-}
+const Home: NextPage = () => (
+  <>
+    <Head>
+      <title>Главная</title>
+    </Head>
+    <Main />
+  </>
+)
 
 export default Home

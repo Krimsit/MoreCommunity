@@ -9,15 +9,15 @@ import {
 
 import { FileProps } from "./File.interface"
 
-import { Base, Image, Video, Overlay, Filename } from "./File.styles"
+import { Base, Image, Overlay, Filename } from "./File.styles"
 
-const File: FC<FileProps> = ({ type, url, alt, name, styleType = "light" }) => {
+const File: FC<FileProps> = ({ type, url, name, styleType = "light" }) => {
   const renderData = () => {
     switch (type) {
       case "image":
         return (
           <>
-            <Image src={url || ""} alt={alt || ""} />
+            <Image src={url || ""} alt={name || ""} quality={20} />
             <Overlay>
               <MdImage />
             </Overlay>
@@ -26,12 +26,7 @@ const File: FC<FileProps> = ({ type, url, alt, name, styleType = "light" }) => {
       case "video":
         return (
           <>
-            <Video preload="metadata">
-              <source src={url || ""} />
-            </Video>
-            <Overlay>
-              <MdVideocam />
-            </Overlay>
+            <MdVideocam />
           </>
         )
       case "audio":

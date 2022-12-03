@@ -3,4 +3,5 @@ export interface LikeButtonProps {
   count?: number
   onLike?: () => void
   styleType?: "dark" | "light"
+  loading?: boolean
 }

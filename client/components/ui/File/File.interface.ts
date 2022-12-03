@@ -4,7 +4,6 @@ export type FileStyleType = "light" | "dark"
 export interface FileProps {
   type: FileType
   url: string
-  alt?: string
-  name?: string
+  name: string
   styleType?: FileStyleType
 }

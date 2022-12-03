@@ -1,7 +1,16 @@
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 import tinycolor from "tinycolor2"
 
 import { StylesBase } from "./Button.interface"
+
+const rotateAnimation = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`
 
 export const Base = styled.button<StylesBase>`
   cursor: pointer;
@@ -26,4 +35,15 @@ export const Base = styled.button<StylesBase>`
     background: ${({ theme, styleType }) =>
       tinycolor(theme[styleType]).darken(2).toHexString()};
   }
+`
+
+export const ButtonLoader = styled.div`
+  width: 20px;
+  height: 20px;
+  border-width: 3px;
+  border-style: solid;
+  border-right-color: transparent;
+  border-top-color: ${({ theme }) => theme.text.light};
+  border-radius: 50%;
+  animation: ${rotateAnimation} 0.8s linear infinite;
 `

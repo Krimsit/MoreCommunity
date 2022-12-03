@@ -9,5 +9,6 @@ export interface AuthenticationResponse {
 }
 
 export interface RegistrationData extends AuthorizationData {
+  avatar: string
   email: string
 }
