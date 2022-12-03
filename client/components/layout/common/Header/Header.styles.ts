@@ -25,3 +25,14 @@ export const LoginButton = styled.span`
   font-weight: bold;
   text-decoration: underline;
 `
+
+export const Menu = styled.div`
+  display: flex;
+  gap: 20px;
+
+  a {
+    text-decoration: none;
+    font-size: 20px;
+    color: ${({ theme }) => theme.text.light};
+  }
+`

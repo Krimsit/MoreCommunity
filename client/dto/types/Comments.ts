@@ -2,7 +2,7 @@ export type Comment = {
   id: number
   username: string
   content: string
-  createdAd: string
+  createdAt: string
   avatar: string
 }
 

@@ -1,4 +1,4 @@
-import { Settings } from "dto/types/User"
+import { User } from 'dto/types/User';
 import { File } from "dto/types/Files"
 
 export interface UserSettingsProps {
@@ -7,6 +7,6 @@ export interface UserSettingsProps {
   userId: string
 }
 
-export type InitialValues = Omit<Settings, "avatar"> & {
+export type InitialValues = Omit<User, "avatar"> & {
   avatar: File[]
 }

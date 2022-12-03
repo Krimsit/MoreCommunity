@@ -7,7 +7,7 @@ export type Community = {
   followers: number
   keywords: string[]
   isStreamOnline?: boolean
-  isMyLike?: boolean
+  isMyFollow?: boolean
   isOwner?: boolean
 }
 
@@ -21,7 +21,7 @@ export interface PostCommunity {
 }
 
 export type Follow = {
-  followed: boolean
+  isMyFollow: boolean
   count: number
 }
 

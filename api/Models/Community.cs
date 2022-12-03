@@ -21,7 +21,7 @@ public class Community : ICommunity
     public string Description { get; set; } = String.Empty;
     public string[] Followers { get; set; } = new string[] { };
     public string[] Keywords { get; set; } = new string[] { };
-    public string? OwnerId { get; set; }
+    public string OwnerId { get; set; }
     [ForeignKey(("OwnerId"))]
     public User User { get; set; }
     public List<Post?> Posts { get; set; }
@@ -47,10 +47,12 @@ public class ResponseCommunity : ICommunity
     public string Description { get; set; } = String.Empty;
     public int Followers { get; set; } = 0;
     public string[] Keywords { get; set; } = new string[] { };
+    public bool isOwner { get; set; } = false;
+    public bool isMyFollow { get; set; } = false;
 }
 
-public class CommunityAction
+public class FollowCommunity
 {
-    public long Id { get; set; }
-    public string Action { get; set; }
+    public bool isMyFollow { get; set; }
+    public int count { get; set; }
 }

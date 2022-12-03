@@ -2,36 +2,28 @@ import { FC, useState } from "react"
 import { formatDistanceToNow } from "date-fns"
 import ruLocale from "date-fns/locale/ru"
 
-import { useAll } from "dto/hooks/Files"
-import { useLast } from "dto/hooks/Comments"
-import { useLike } from "dto/hooks/Posts"
+import { useFiles, useLike } from "dto/hooks/Posts"
 
 import PostContext from "./PostContext"
 
 import { File } from "@ui"
-import { LikeButton, CommentsButton, QueryWrapper } from "@container"
+import { CommentsButton, LikeButton, QueryWrapper } from "@container"
 import Detail from "./Detail"
 
 import { PostProps } from "./Post.interface"
 
 import {
   Base,
+  Content,
+  Controls,
+  Files,
   Header,
+  MoreFiles,
+  OpenAllButton,
   Status,
   Time,
   Title,
-  Content,
-  Files,
-  MoreFiles,
-  Controls,
-  UserControls,
-  OpenAllButton,
-  CommentsBlock,
-  Comments,
-  CreateCommentAvatar,
-  Comment,
-  CommentData,
-  ShowAllComments
+  UserControls
 } from "./Post.styles"
 
 const Post: FC<PostProps> = ({
@@ -40,8 +32,7 @@ const Post: FC<PostProps> = ({
   isOwner,
   communityName
 }) => {
-  const { data: filesData, status: filesStatus } = useAll(post.id)
-  const { data: commentsData, status: commentsStatus } = useLast(
+  const { data: filesData, status: filesStatus } = useFiles(
     post.communityId,
     post.id
   )
@@ -64,7 +55,7 @@ const Post: FC<PostProps> = ({
 
   const handleLike = () =>
     like().then((result) => {
-      setIsLike(result.followed)
+      setIsLike(result.isMyLike)
       setLikeCount(result.count)
     })
 
@@ -131,38 +122,6 @@ const Post: FC<PostProps> = ({
             />
           </UserControls>
         </Controls>
-        <CommentsBlock>
-          <QueryWrapper status={commentsStatus} loaderSize="2em">
-            <Comments>
-              {commentsData?.map((item) => (
-                <Comment key={item.id} styleType={styleType}>
-                  <CreateCommentAvatar
-                    img={item.avatar || ""}
-                    alt={item.username || ""}
-                    styleType={styleType}
-                  />
-                  <CommentData>
-                    <span>{item.username}</span>
-                    <p>{item.content}</p>
-                    <span className="date">
-                      {formatDistanceToNow(new Date(item.createdAd), {
-                        addSuffix: true,
-                        locale: ruLocale
-                      })}
-                    </span>
-                  </CommentData>
-                </Comment>
-              ))}
-            </Comments>
-            {!!commentsData?.length && (
-              <ShowAllComments
-                onClick={detailReducer.open}
-                styleType={styleType}>
-                Посмотреть все комментарии
-              </ShowAllComments>
-            )}
-          </QueryWrapper>
-        </CommentsBlock>
       </Base>
       {post && <Detail open={isOpenDetail} onClose={detailReducer.close} />}
     </PostContext.Provider>

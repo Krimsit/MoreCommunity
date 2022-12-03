@@ -1,10 +1,10 @@
-import { FC, useState, useEffect } from "react"
+import { FC, useEffect, useState } from "react"
 import { v4 as uuid } from "uuid"
 import { UseFormReturn } from "react-hook-form"
 import * as yup from "yup"
 
 import { useUpload } from "dto/hooks/Files"
-import { useCreate, useById, useUpdate, useDelete } from "dto/hooks/Communities"
+import { useById, useCreate, useDelete, useUpdate } from "dto/hooks/Communities"
 
 import { Modal, Tag, Upload, UploadFileProps } from "@ui"
 import { QueryWrapper } from "@container"
@@ -17,20 +17,20 @@ import {
 } from "./CommunitySettings.interface"
 
 import {
-  Base,
-  Title,
-  Form,
-  Input,
-  Textarea,
-  KeywordsField,
-  KeywordsFieldAdd,
-  Keywords,
   Avatar,
   Banner,
   BannerImage,
+  Base,
   Controls,
+  DeleteButton,
+  Form,
+  Input,
+  Keywords,
+  KeywordsField,
+  KeywordsFieldAdd,
   SendButton,
-  DeleteButton
+  Textarea,
+  Title
 } from "./CommunitySettings.styles"
 import { Description as InputError } from "components/ui/Input/Input.styles"
 
@@ -79,7 +79,7 @@ const CreateCommunity: FC<CreateCommunityProps> = ({
     if (typeof values.avatar !== "string") {
       await upload({
         ...values.avatar[0],
-        folder: `communities/${values.name}`
+        folder: `communities/avatars/${values.name}`
       }).then((result) => {
         _avatar = result.url
       })
@@ -90,7 +90,7 @@ const CreateCommunity: FC<CreateCommunityProps> = ({
     if (typeof values.banner !== "string") {
       await upload({
         ...values.banner[0],
-        folder: `communities/${values.name}`
+        folder: `communities/banners/${values.name}`
       }).then((result) => {
         _banner = result.url
       })
@@ -190,7 +190,7 @@ const CreateCommunity: FC<CreateCommunityProps> = ({
         </Title>
         <QueryWrapper status={communityId ? communityStatus : "success"}>
           <Form
-            defaultValues={initialValues}
+            defaultValues={initialValues || {}}
             yupSchema={validationSchema}
             onSubmit={handleSubmit}
             onInit={setFormMethods}>

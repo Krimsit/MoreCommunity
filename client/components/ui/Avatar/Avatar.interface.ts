@@ -11,6 +11,7 @@ export interface AvatarProps {
   overflowContent?: ReactNode
   noImageContent?: ReactNode
   loading?: boolean
+  onClick?: () => void
 }
 
 export interface StylesBase {

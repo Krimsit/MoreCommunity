@@ -27,7 +27,7 @@ const CreatePost: FC<CreatePostProps> = ({
   postId,
   communityName
 }) => {
-  const { mutateAsync: upload, status: uploadStatus } = useUpload()
+  const { mutate: upload, status: uploadStatus } = useUpload()
   const { mutateAsync: create, status: createStatus } = useCreate(communityId)
   const { mutateAsync: update, status: updateStatus } = useUpdate(
     communityId,
@@ -36,46 +36,47 @@ const CreatePost: FC<CreatePostProps> = ({
 
   const [formMethods, setFormMethods] = useState<UseFormReturn | null>(null)
 
-  const handleUploadFiles = async (files?: UploadFileProps[]) => {
+  const handleUploadFiles = async (id: number, files?: UploadFileProps[]) => {
     if (files?.length) {
-      const promises: Promise<IFile>[] = []
-
       files.forEach((file) => {
-        promises.push(
-          upload({
-            ...file,
-            folder: `communities/${communityName}/posts`
-          })
-        )
+        upload({
+          ...file,
+          folder: `communities/${communityName}/posts_${id}`,
+          postId: id
+        })
       })
-
-      await Promise.all(promises)
     }
   }
 
   const handleSubmit = async (
     values: PostPost & { files?: UploadFileProps[] }
   ) => {
-    await handleUploadFiles(values.files)
-
-    !postId && delete values.id
-    delete values.files
-
     const _data: PostPost = {
-      ...values
+      title: values.title,
+      content: values.content
     }
 
     postId
-      ? update(_data).catch((error: { [key: string]: string }) => {
-          Object.keys(error).forEach((key) => {
-            formMethods?.setError(key, { type: "custom", message: error[key] })
+      ? update(_data)
+          .then((post) => handleUploadFiles(post.id, values.files))
+          .catch((error: { [key: string]: string }) => {
+            Object.keys(error).forEach((key) => {
+              formMethods?.setError(key, {
+                type: "custom",
+                message: error[key]
+              })
+            })
           })
-        })
-      : create(_data).catch((error: { [key: string]: string }) => {
-          Object.keys(error).forEach((key) => {
-            formMethods?.setError(key, { type: "custom", message: error[key] })
+      : create(_data)
+          .then((post) => handleUploadFiles(post.id, values.files))
+          .catch((error: { [key: string]: string }) => {
+            Object.keys(error).forEach((key) => {
+              formMethods?.setError(key, {
+                type: "custom",
+                message: error[key]
+              })
+            })
           })
-        })
   }
 
   return (

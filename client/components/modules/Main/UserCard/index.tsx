@@ -54,12 +54,12 @@ const UserCard: FC = () => {
   return (
     <Base>
       <div>
-        {/*<Avatar*/}
-        {/*  img={user?.avatar || ""}*/}
-        {/*  alt={user?.username || ""}*/}
-        {/*  styleType="dark"*/}
-        {/*  size="middle"*/}
-        {/*/>*/}
+        <Avatar
+          img={user?.avatar || ""}
+          alt={user?.username || ""}
+          styleType="dark"
+          size="middle"
+        />
         <Username>{user?.username}</Username>
       </div>
       <Content>

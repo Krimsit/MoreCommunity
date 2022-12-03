@@ -1,10 +1,12 @@
-﻿using System.Security.Claims;
-using api.Helpers;
-using api.Models;
+﻿using System.Data.Common;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+using api.Helpers;
+using api.Models;
 
 namespace api.Controllers;
 
@@ -15,24 +17,28 @@ public class CommunitiesController : ControllerBase
 {
     private readonly DataContext _context;
     private readonly UserManager<User> _userManager;
+    private GetResponseObject _getResponseObject = new GetResponseObject();
 
     public CommunitiesController(DataContext context, UserManager<User> userManager)
     {
         _context = context;
         _userManager = userManager;
     }
-    
+
     // Получить все сообщества
     [HttpGet]
     public async Task<ActionResult<QueryResult<List<ResponseCommunity>>>> GetAll()
     {
-        List<Community?> communities = await _context.Communities.ToListAsync();
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
+        
+        List<Community> communities = await _context.Communities.ToListAsync();
 
         List<ResponseCommunity> responseCommunities = new List<ResponseCommunity>();
 
-        foreach (Community? community in communities)
+        foreach (Community community in communities)
         {
-            responseCommunities.Add(CreateResponseCommunityObject(community));
+            responseCommunities.Add(_getResponseObject.Community(community, user));
         }
 
         return Ok(new QueryResult<List<ResponseCommunity>>(200, "Запрос успешно выполнен", responseCommunities));
@@ -41,36 +47,53 @@ public class CommunitiesController : ControllerBase
     // Создать сообщество
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<QueryResult<ResponseCommunity>>> Create(CreateCommunity model)
+    public async Task<ActionResult<QueryResult<ResponseCommunity>>> Create([FromBody] CreateCommunity model)
     {
-        string? userId = GetUserIdFromJwtToken();
-        User user = await _userManager.FindByIdAsync(userId);
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
 
-        if (userId == null || user == null)
+        if (user == null)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
         }
 
-        Community? community = await CreateDbCommunityObject(model);
-        
+        Community community = new Community()
+        {
+            Id = model.Id,
+            Avatar = model.Avatar,
+            Banner = model.Banner,
+            Description = model.Description,
+            Followers = new string[] { },
+            Keywords = model.Keywords,
+            Name = model.Name,
+            OwnerId = user.Id,
+        };
+
         _context.Communities.Add(community);
-        
+
         try
         {
             await _context.SaveChangesAsync();
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbException)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
         }
-        
-        return StatusCode(StatusCodes.Status201Created, new QueryResult<ResponseCommunity?>(200, "Запрос успешно выполнен", CreateResponseCommunityObject(community)));
+
+        return StatusCode(StatusCodes.Status201Created,
+            new QueryResult<ResponseCommunity?>(200, "Запрос успешно выполнен",
+                _getResponseObject.Community(community, null)));
     }
-    
+
     // Получить сообщество по id
     [HttpGet("{id}")]
     public async Task<ActionResult<QueryResult<ResponseCommunity>>> GetById(long id)
     {
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
+
         Community? community = await _context.Communities.FindAsync(id);
 
         if (community == null)
@@ -78,26 +101,36 @@ public class CommunitiesController : ControllerBase
             return NotFound(new QueryResult<string>(404, "Сообщество не найдено", null));
         }
 
-        return Ok(new QueryResult<ResponseCommunity?>(200, "Запрос успешно выполнен", CreateResponseCommunityObject(community)));
+        return Ok(new QueryResult<ResponseCommunity?>(200, "Запрос успешно выполнен",
+            _getResponseObject.Community(community, user)));
     }
-    
+
     // Обновить конкретное сообщество
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<ActionResult<ResponseCommunity>> Update(long id, CreateCommunity model)
+    public async Task<ActionResult<ResponseCommunity>> Update(long id, [FromBody] CreateCommunity model)
     {
-        Community? community = await CreateDbCommunityObject(model);
-        string? userId = GetUserIdFromJwtToken();
-        
-        if (id != community.Id || userId == null || userId != community.OwnerId)
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
+            return StatusCode(StatusCodes.Status401Unauthorized,
+                new QueryResult<string>(401, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
         }
-        
-        if (!CommunityExists(id))
+
+        Community? community = await _context.Communities.FindAsync(id);
+
+        if (community == null)
         {
             return NotFound(new QueryResult<string>(404, "Сообщество не найдено", null));
         }
+
+        community.Avatar = model.Avatar;
+        community.Banner = model.Banner;
+        community.Description = model.Description;
+        community.Keywords = model.Keywords;
+        community.Name = model.Name;
 
         _context.Entry(community).State = EntityState.Modified;
 
@@ -105,14 +138,16 @@ public class CommunitiesController : ControllerBase
         {
             await _context.SaveChangesAsync();
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbException)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
         }
-        
-        return Ok(new QueryResult<ResponseCommunity?>(200, "Запрос успешно выполнен", CreateResponseCommunityObject(community)));
+
+        return Ok(new QueryResult<ResponseCommunity?>(200, "Запрос успешно выполнен",
+            _getResponseObject.Community(community, null)));
     }
-    
+
     // Удалить конкретное сообщество
     [Authorize]
     [HttpDelete("{id}")]
@@ -124,170 +159,106 @@ public class CommunitiesController : ControllerBase
         {
             return NotFound(new QueryResult<string>(404, "Сообщество не найдено", ""));
         }
-        
-        string? userId = GetUserIdFromJwtToken();
-        
-        if (id != community.Id || userId == null || userId != community.OwnerId)
+
+        string userId = GetUserIdFromJwtToken();
+
+        if (id != community.Id || userId != community.OwnerId)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
         }
 
         _context.Communities.Remove(community);
-        
+
         try
         {
             await _context.SaveChangesAsync();
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbException)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
         }
 
-        return Ok(new QueryResult<string>(200, "Сообщество успешно удалено", null));
+        return Ok(new QueryResult<bool>(200, "Сообщество успешно удалено", true));
     }
-    
+
     // Подписка/отписка
     [Authorize]
-    [HttpPost("{id}/actions")]
-    public async Task<ActionResult<QueryResult<int>>> Actions(long id, CommunityAction action)
+    [HttpPost("{id}/follow")]
+    public async Task<ActionResult<QueryResult<FollowCommunity>>> Actions(long id)
     {
-        if (action.Id != id)
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
         }
-        
-        Community? community = await _context.Communities.FindAsync(action.Id);
+
+        Community? community = await _context.Communities.FindAsync(id);
 
         if (community == null)
         {
             return NotFound(new QueryResult<string>(404, "Сообщество не найдено", ""));
         }
-        
-        string? userId = GetUserIdFromJwtToken();
-        User user = await _userManager.FindByIdAsync(userId);
-        
-        if (userId == null || userId != community.OwnerId || user == null)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
-        }
 
-        if (action.Action != "follow" && action.Action != "unfollow")
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Такого действия не существует", null));
-        }
+        bool isMyFollow;
 
-        switch (action.Action)
-        {
-            case "follow":
-                return await Follow(community, user);
-            case "unfollow":
-                return await Unfollow(community, user);
-        }
-
-        return NoContent();
-    }
-
-    private async Task<ActionResult<QueryResult<int>>> Follow(Community community, User user)
-    {
-        if (user.FollowedCommunities.Contains(community.Id))
-        {
-            return BadRequest(new QueryResult<string>(400, "Вы уже подписанны на данное сообщество", null));
-        }
-        
-        community.Followers = community.Followers!.Append(user.Id).ToArray();
-        user.FollowedCommunities = user.FollowedCommunities.Append(community.Id).ToArray();
-        
-        _context.Entry(community).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-            await _userManager.UpdateAsync(user);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
-        }
-        
-        return Ok(new QueryResult<int>(200, "Запрос успешно выполнен", community.Followers!.Length));
-    }
-    
-    private async Task<ActionResult<QueryResult<int>>> Unfollow(Community community, User user)
-    {
         if (!user.FollowedCommunities.Contains(community.Id))
         {
-            return BadRequest(new QueryResult<string>(400, "Вы не подписанны на данное сообщество", null));
+            community.Followers = community.Followers.Append(user.Id).ToArray();
+            user.FollowedCommunities = user.FollowedCommunities.Append(community.Id).ToArray();
+            isMyFollow = true;
         }
-        
-        community.Followers = community.Followers!.Where(item => item != user.Id).ToArray();
-        user.FollowedCommunities = user.FollowedCommunities.Where(item => item != community.Id).ToArray();
-        
-        _context.Entry(community).State = EntityState.Modified;
+        else
+        {
+            community.Followers = community.Followers.Where(item => item != user.Id).ToArray();
+            user.FollowedCommunities = user.FollowedCommunities.Where(item => item != community.Id).ToArray();
+            isMyFollow = false;
+        }
 
         try
         {
             await _context.SaveChangesAsync();
             await _userManager.UpdateAsync(user);
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbException)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500, "Возникли непредвиденные ошибки", null));
         }
-        
-        return Ok(new QueryResult<int>(200, "Запрос успешно выполнен", community.Followers!.Length));
+
+        return Ok(new QueryResult<FollowCommunity>(200, "Запрос успешно выполнен",
+            new FollowCommunity() { isMyFollow = isMyFollow, count = community.Followers.Length }));
     }
     
-    // Проверка существует ли сообщество в БД
-    private bool CommunityExists(long id)
+    [HttpGet("popular")]
+    public async Task<ActionResult<QueryResult<List<ResponseCommunity>>>> GetPopulars()
     {
-        return _context.Communities.Any(item => item.Id == id);
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
+        
+        List<Community> communities = await _context.Communities.ToListAsync();
+
+        List<ResponseCommunity> responseCommunities = new List<ResponseCommunity>();
+
+        foreach (Community community in communities)
+        {
+            responseCommunities.Add(_getResponseObject.Community(community, user));
+        }
+
+        return Ok(new QueryResult<List<ResponseCommunity>>(200, "Запрос успешно выполнен", responseCommunities));
     }
 
     // Получение ID пользователя из JWT токена
-    private string? GetUserIdFromJwtToken()
+    [NonAction]
+    private string GetUserIdFromJwtToken()
     {
         ClaimsIdentity? claimsIdentity = this.User.Identity as ClaimsIdentity;
         string? userId = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value;
 
-        return userId;
-    }
-
-    // Создание объекта сообщеста, который передаётся на фронт
-    private ResponseCommunity CreateResponseCommunityObject(Community? community)
-    {
-        ResponseCommunity responseCommunity = new ResponseCommunity()
-        {
-            Id = community.Id,
-            Avatar = community.Avatar,
-            Banner = community.Banner,
-            Description = community.Description,
-            Followers = community.Followers!.Length,
-            Keywords = community.Keywords,
-            Name = community.Name
-        };
-
-        return responseCommunity;
-    }
-
-    // Создание объекта сообщеста, который записывается в БД
-    private async Task<Community?> CreateDbCommunityObject(CreateCommunity model)
-    {
-        string? userId = GetUserIdFromJwtToken();
-        User user = await _userManager.FindByIdAsync(userId);
-
-        Community? community = new Community()
-        {
-            Id = model.Id,
-            Avatar = model.Avatar,
-            Banner = model.Banner,
-            Description = model.Description,
-            Followers = new string[] { },
-            Keywords = model.Keywords,
-            Name = model.Name,
-            OwnerId = userId,
-            User = user
-        };
-
-        return community;
+        return userId ?? "";
     }
 }

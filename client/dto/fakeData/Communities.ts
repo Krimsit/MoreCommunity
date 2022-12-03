@@ -1,4 +1,4 @@
-import { Community, Follow, Delete } from "dto/types/Communities"
+import { Community, Delete, Follow } from "dto/types/Communities"
 import { Response } from "types/default"
 
 export const TestCommunity: Community = {
@@ -31,7 +31,7 @@ export const CommunityFollowFakeData: Response<Follow> = {
   status: 200,
   message: "Запрос успешно выполнен",
   data: {
-    followed: true,
+    isMyFollow: true,
     count: 170
   }
 }

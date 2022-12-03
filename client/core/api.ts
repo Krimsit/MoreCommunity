@@ -12,7 +12,8 @@ import {
 import {
   PostsFakeData,
   PostFakeData,
-  PostLikeFakeData
+  PostLikeFakeData,
+    PostDeleteFakeData
 } from "dto/fakeData/Posts"
 import {
   CommunitiesFakeData,
@@ -26,6 +27,7 @@ import {
   CreateCommentFakeData
 } from "dto/fakeData/Comments"
 import { FilesFakeData, FileUploadFakeData } from "dto/fakeData/Files"
+import * as process from 'process';
 
 const axiosConfig = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}`,
@@ -72,6 +74,7 @@ fakeApi.onGet("/communities/popular").reply(200, CommunitiesFakeData) // Пол�
 fakeApi.onGet("/communities/1/posts").reply(200, PostsFakeData)
 fakeApi.onGet("/communities/1/posts/1").reply(200, PostFakeData)
 fakeApi.onPost("/communities/1/posts/1/like").reply(200, PostLikeFakeData)
+fakeApi.onDelete("/communities/1/posts/1").reply(200, PostDeleteFakeData) // Удаление сообщества
 
 // Fake API для комментариев
 fakeApi.onGet("/communities/1/posts/1/comments").reply(200, CommentsFakeData)
@@ -86,7 +89,9 @@ fakeApi
 fakeApi.onGet("/files/1").reply(200, FilesFakeData)
 fakeApi.onPost("/files").reply(200, FileUploadFakeData)
 
-if (process.env.NODE_ENV === "production") {
+fakeApi.restore()
+
+if (process.env.NODE_ENV === "production" || !process.env.NEXT_PUBLIC_WITH_FAKE_DATA) {
   fakeApi.restore()
 }
 

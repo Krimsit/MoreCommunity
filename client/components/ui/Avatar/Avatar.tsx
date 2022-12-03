@@ -5,7 +5,7 @@ import { MdPerson } from "react-icons/md"
 
 import { AvatarProps } from "./Avatar.interface"
 
-import { Base, ImageContainer, Image } from "./Avatar.styles"
+import { Base, Image, ImageContainer } from "./Avatar.styles"
 
 const Avatar: FC<AvatarProps> = ({
   img,
@@ -14,10 +14,11 @@ const Avatar: FC<AvatarProps> = ({
   overflowContent,
   noImageContent,
   styleType = "light",
-  loading
+  loading,
+  onClick
 }) => {
   return (
-    <Base size={size} styleType={styleType}>
+    <Base size={size} styleType={styleType} onClick={onClick}>
       {!!overflowContent && <span>{overflowContent}</span>}
       <ImageContainer size={size} styleType={styleType}>
         {loading && <Loader />}

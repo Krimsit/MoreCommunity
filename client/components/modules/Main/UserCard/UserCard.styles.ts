@@ -27,6 +27,8 @@ export const Base = styled(Container).attrs(() => ({
 
 export const Content = styled.div`
   flex: 1;
+  align-self: flex-start;
+  margin-top: 20px;
 `
 
 export const Username = styled.h2`

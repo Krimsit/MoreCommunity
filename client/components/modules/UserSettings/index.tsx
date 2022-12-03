@@ -1,28 +1,28 @@
-import { FC, useState, useEffect } from "react"
+import { FC, useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import * as yup from "yup"
 import { UseFormReturn } from "react-hook-form"
 
-import { useSettings, useUpdate, useDelete } from "dto/hooks/User"
+import { useDelete, useUpdate, useUser } from "dto/hooks/User"
 import { useUpload } from "dto/hooks/Files"
 
 import { Modal, Upload, UploadFileProps } from "@ui"
 import { QueryWrapper } from "@container"
-import { MdDelete, MdUpload, MdLogout } from "react-icons/md"
+import { MdDelete, MdLogout, MdUpload } from "react-icons/md"
 
 import { Settings } from "dto/types/User"
-import { UserSettingsProps, InitialValues } from "./UserSettings.interface"
+import { InitialValues, UserSettingsProps } from "./UserSettings.interface"
 
 import {
+  Avatar,
   Base,
-  Title,
+  Controls,
+  DeleteButton,
   Form,
   Input,
-  Avatar,
-  Controls,
-  SendButton,
   LogoutButton,
-  DeleteButton
+  SendButton,
+  Title
 } from "./UserSettings.styles"
 
 const validationSchema = yup.object().shape({
@@ -38,7 +38,7 @@ const validationSchema = yup.object().shape({
 const UserSettings: FC<UserSettingsProps> = ({ open, onClose, userId }) => {
   const router = useRouter()
 
-  const { data: settings, status: settingsStatus } = useSettings(userId)
+  const { data: settings, status: settingsStatus } = useUser()
   const { mutateAsync: upload, status: uploadStatus } = useUpload()
   const { mutateAsync: updateUser, status: updateStatus } = useUpdate(userId)
   const { mutateAsync: deleteUser, status: deleteStatus } = useDelete(userId)
@@ -112,7 +112,7 @@ const UserSettings: FC<UserSettingsProps> = ({ open, onClose, userId }) => {
         <Title>Настройки аккаунта</Title>
         <QueryWrapper status={settingsStatus}>
           <Form
-            defaultValues={initialValues}
+            defaultValues={initialValues || {}}
             yupSchema={validationSchema}
             onSubmit={handleSubmit}
             onInit={setFormMethods}>
@@ -136,9 +136,6 @@ const UserSettings: FC<UserSettingsProps> = ({ open, onClose, userId }) => {
             </Form.FormField>
             <Form.FormField name="email">
               <Input type="email" placeholder="Введите вашу почту" />
-            </Form.FormField>
-            <Form.FormField name="password">
-              <Input type="password" placeholder="Введите новый пароль" />
             </Form.FormField>
             <Controls>
               <SendButton

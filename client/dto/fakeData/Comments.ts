@@ -11,7 +11,7 @@ export const CommentsFakeData: Response<Comment[]> = {
         "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
       username: "Test",
       content: "Comment 1",
-      createdAd: new Date().toDateString()
+      createdAt: new Date().toDateString()
     },
     {
       id: 2,
@@ -19,7 +19,7 @@ export const CommentsFakeData: Response<Comment[]> = {
         "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
       username: "User",
       content: "Comment 2",
-      createdAd: new Date().toDateString()
+      createdAt: new Date().toDateString()
     },
     {
       id: 3,
@@ -27,7 +27,7 @@ export const CommentsFakeData: Response<Comment[]> = {
         "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
       username: "Test",
       content: "Comment 1",
-      createdAd: new Date().toDateString()
+      createdAt: new Date().toDateString()
     },
     {
       id: 4,
@@ -35,7 +35,7 @@ export const CommentsFakeData: Response<Comment[]> = {
         "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
       username: "User",
       content: "Comment 2",
-      createdAd: new Date().toDateString()
+      createdAt: new Date().toDateString()
     }
   ]
 }
@@ -50,7 +50,7 @@ export const LastCommentsFakeData: Response<Comment[]> = {
         "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
       username: "Test",
       content: "Comment 1",
-      createdAd: new Date().toDateString()
+      createdAt: new Date().toDateString()
     },
     {
       id: 2,
@@ -58,7 +58,7 @@ export const LastCommentsFakeData: Response<Comment[]> = {
         "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
       username: "User",
       content: "Comment 2",
-      createdAd: new Date().toDateString()
+      createdAt: new Date().toDateString()
     }
   ]
 }
@@ -72,6 +72,6 @@ export const CreateCommentFakeData: Response<Comment> = {
       "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
     username: "User",
     content: "new comment",
-    createdAd: new Date().toDateString()
+    createdAt: new Date().toDateString()
   }
 }

@@ -10,6 +10,8 @@ import postsAPI from "dto/api/PostsAPI"
 import { Post, Like, PostPost, Delete } from "dto/types/Posts"
 import { Response } from "types/default"
 import { AxiosError } from "axios"
+import { File } from "../types/Files"
+import filesAPI from "../api/FilesAPI"
 
 export const useAll = (
   communityId: number,
@@ -83,4 +85,17 @@ export const useLike = (
   useMutation<Like, Error, void>(
     [`community_${communityId}`, `post_${postId}`, "like"],
     () => postsAPI.like(communityId, postId).then((response) => response.data)
+  )
+
+export const useFiles = (
+  communityId: number,
+  postId: number
+): UseQueryResult<File[]> =>
+  useQuery<Response<File[]>, Error, File[]>(
+    [`community_${communityId}`, `post_${postId}`, "files_all"],
+    () => postsAPI.getFiles(communityId, postId),
+    {
+      select: (response) => response.data,
+      enabled: !!postId
+    }
   )

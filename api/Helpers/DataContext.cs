@@ -26,6 +26,7 @@ public class DataContext: IdentityDbContext<User>
     }
 
     public DbSet<Community> Communities { get; set; }
-    public DbSet<Post?> Posts { get; set; }
+    public DbSet<Post> Posts { get; set; }
     public DbSet<Comment> Comments { get; set; }
+    public DbSet<Upload> Files { get; set; }
 }
