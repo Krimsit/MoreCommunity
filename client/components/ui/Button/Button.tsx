@@ -2,7 +2,7 @@ import { FC } from "react"
 
 import { ButtonProps } from "./Button.interface"
 
-import { Base } from "./Button.styles"
+import { Base, ButtonLoader } from "./Button.styles"
 
 const Button: FC<ButtonProps> = ({
   children,
@@ -10,7 +10,9 @@ const Button: FC<ButtonProps> = ({
   styleType = "light",
   onClick,
   disabled = false,
-  className
+  className,
+  loading,
+  loader = <ButtonLoader />
 }) => {
   return (
     <Base
@@ -19,7 +21,7 @@ const Button: FC<ButtonProps> = ({
       type={type}
       disabled={disabled}
       className={className}>
-      {children}
+      {!loading ? children : loader}
     </Base>
   )
 }

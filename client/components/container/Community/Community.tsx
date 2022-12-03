@@ -26,6 +26,7 @@ const Community: FC<
   description,
   isStreamOnline,
   isMyLike,
+  isOwner,
   styleType = "light"
 }) => {
   const { mutateAsync } = useFollow(id)
@@ -51,12 +52,16 @@ const Community: FC<
       </Title>
       <Description>{description}</Description>
       <Controls>
-        <LikeButton
-          count={likeCount}
-          liked={isLike}
-          onLike={handleLike}
-          styleType={styleType}
-        />
+        {!isOwner ? (
+          <LikeButton
+            count={likeCount}
+            liked={isLike}
+            onLike={handleLike}
+            styleType={styleType}
+          />
+        ) : (
+          `${likeCount} подписчиков`
+        )}
         {isStreamOnline && (
           <StreamButton styleType={styleType}>
             <StreamStatus />

@@ -1,8 +1,7 @@
+import { DefaultTheme } from "styled-components"
 import tinycolor from "tinycolor2"
 
-import { Theme } from "types/theme"
-
-const theme: Theme = {
+const theme: DefaultTheme = {
   light: "#333333",
   dark: "#252525",
   text: {

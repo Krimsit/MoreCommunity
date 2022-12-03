@@ -1,9 +1,10 @@
-import { FC } from "react"
+import { FC, useState } from "react"
 import * as yup from "yup"
+import { UseFormReturn } from "react-hook-form"
 
 import { useLogin } from "dto/hooks/Authentication"
 
-import { Form, Button } from "@ui"
+import { Form } from "@ui"
 import { MdSend } from "react-icons/md"
 
 import { AuthorizationData } from "dto/types/Authentication"
@@ -13,7 +14,8 @@ import {
   Title,
   Input,
   Controls,
-  Question
+  Question,
+  SendButton
 } from "../Authentication.styles"
 
 const validationSchema = yup.object().shape({
@@ -24,14 +26,24 @@ const validationSchema = yup.object().shape({
 const Authorization: FC<{
   changeForm: (type: "authorization" | "registration") => void
 }> = ({ changeForm }) => {
-  const { mutate } = useLogin()
+  const { mutateAsync: login, status: loginStatus } = useLogin()
 
-  const onSubmit = (data: AuthorizationData) => mutate(data)
+  const [formMethods, setFormMethods] = useState<UseFormReturn | null>(null)
+
+  const onSubmit = (data: AuthorizationData) =>
+    login(data).catch((error: { [key: string]: string }) => {
+      Object.keys(error).forEach((key) => {
+        formMethods?.setError(key, { type: "custom", message: error[key] })
+      })
+    })
 
   return (
     <>
       <Title>Авторизация</Title>
-      <Form yupSchema={validationSchema} onSubmit={onSubmit}>
+      <Form
+        yupSchema={validationSchema}
+        onSubmit={onSubmit}
+        onInit={setFormMethods}>
         <Fields>
           <Form.FormField name="username">
             <Input placeholder="Логин" autoComplete={false} />
@@ -41,10 +53,13 @@ const Authorization: FC<{
           </Form.FormField>
         </Fields>
         <Controls>
-          <Button type="submit" styleType="dark">
+          <SendButton
+            type="submit"
+            styleType="dark"
+            loading={loginStatus === "loading"}>
             Отправить
             <MdSend />
-          </Button>
+          </SendButton>
           <Question>
             У вас нет аккаунта?
             <span onClick={() => changeForm("registration")}>

@@ -1,8 +1,9 @@
 import { ReactNode } from "react"
-import { QueryStatus } from "@tanstack/react-query"
+import { QueryStatus, MutationStatus } from "@tanstack/react-query"
 
 export interface QueryWrapperProps {
-  status: QueryStatus
+  status: QueryStatus | MutationStatus
   children: ReactNode
   loader?: ReactNode
+  loaderSize?: string
 }

@@ -67,6 +67,7 @@ const getImageContainerSize = (
 export const Base = styled(Container).attrs(() => ({
   type: "2"
 }))<StylesBase>`
+  position: relative;
   min-width: 0;
   min-height: 0;
   border-radius: 100%;
@@ -76,6 +77,26 @@ export const Base = styled(Container).attrs(() => ({
   box-sizing: border-box;
 
   ${({ size }) => getBaseSize(size)}
+  &:hover {
+    span {
+      opacity: 1;
+    }
+  }
+
+  span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
 `
 
 export const ImageContainer = styled(Container).attrs(() => ({

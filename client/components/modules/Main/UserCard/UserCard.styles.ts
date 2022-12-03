@@ -1,4 +1,6 @@
 import styled from "styled-components"
+import tinycolor from "tinycolor2"
+import BaseLink from "next/link"
 
 import { Container, Button } from "@ui"
 import { MdSettings } from "react-icons/md"
@@ -15,6 +17,7 @@ export const Base = styled(Container).attrs(() => ({
   display: flex;
   align-items: center;
   gap: 50px;
+  margin-bottom: 80px;
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
@@ -56,7 +59,7 @@ export const NoCommunities = styled(Button).attrs(() => ({
   margin-top: 10px;
 `
 
-export const CreateCommunity = styled.p`
+export const CreateCommunityLink = styled.p`
   cursor: pointer;
   padding: 0;
   font-size: 12px;
@@ -73,6 +76,11 @@ export const SettingsButton = styled(MdSettings)`
   font-size: 24px;
 `
 
+export const Link = styled(BaseLink)`
+  text-decoration: none;
+  color: ${({ theme }) => theme.text.light};
+`
+
 export const Community = styled(Container).attrs(() => ({
   styleType: "dark"
 }))`
@@ -83,6 +91,12 @@ export const Community = styled(Container).attrs(() => ({
   align-items: center;
   gap: 15px;
   padding: 15px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: ${({ theme, styleType }) =>
+      tinycolor(theme[styleType]).darken(2).toHexString()};
+  }
 
   p {
     margin: 0 0 10px;

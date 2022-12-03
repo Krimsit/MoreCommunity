@@ -9,38 +9,57 @@ import {
   AuthenticationResponse
 } from "dto/types/Authentication"
 import { Response } from "types/default"
+import { AxiosError } from "axios"
 
 export const useLogin = (): UseMutationResult<
   Response<AuthenticationResponse>,
-  Error,
+  { [key: string]: string },
   AuthorizationData
 > => {
   const router = useRouter()
 
   return useMutation<
     Response<AuthenticationResponse>,
-    Error,
+    { [key: string]: string },
     AuthorizationData
-  >(["login"], (data) => authenticationAPI.login(data), {
-    onSuccess: (response) => {
-      if (response.status === 200) {
-        localStorage.setItem("token", response.data.token)
-        router.reload()
+  >(
+    ["login"],
+    (data) =>
+      authenticationAPI
+        .login(data)
+        .catch((error: AxiosError<Response<{ [key: string]: string }>>) =>
+          Promise.reject(error?.response?.data.data)
+        ),
+    {
+      onSuccess: (response) => {
+        if (response.status === 200) {
+          localStorage.setItem("token", response.data.token)
+          router.reload()
+        }
       }
     }
-  })
+  )
 }
 
 export const useRegistration = (): UseMutationResult<
   Response<AuthenticationResponse>,
-  Error,
+  { [key: string]: string },
   RegistrationData
 > => {
   const router = useRouter()
 
-  return useMutation<Response<AuthenticationResponse>, Error, RegistrationData>(
+  return useMutation<
+    Response<AuthenticationResponse>,
+    { [key: string]: string },
+    RegistrationData
+  >(
     ["registration"],
-    (data) => authenticationAPI.registration(data),
+    (data) =>
+      authenticationAPI
+        .registration(data)
+        .catch((error: AxiosError<Response<{ [key: string]: string }>>) =>
+          Promise.reject(error?.response?.data.data)
+        ),
     {
       onSuccess: (response) => {
         if (response.status === 200) {

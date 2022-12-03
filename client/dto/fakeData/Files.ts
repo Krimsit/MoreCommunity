@@ -6,7 +6,6 @@ export const TestFiles: File[] = [
     id: 1,
     type: "image",
     url: "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
-    alt: "",
     name: "file.test"
   },
   {
@@ -31,7 +30,6 @@ export const TestFiles: File[] = [
     id: 5,
     type: "image",
     url: "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
-    alt: "",
     name: "file.test"
   },
   {
@@ -52,4 +50,15 @@ export const FilesFakeData: Response<File[]> = {
   status: 200,
   message: "Запрос успешно выполнен",
   data: TestFiles
+}
+
+export const FileUploadFakeData: Response<File> = {
+  status: 200,
+  message: "Запрос успешно выполнен",
+  data: {
+    id: 1,
+    type: "image",
+    url: "https://sun9-30.userapi.com/impg/_hGpPSIUqmlbjlHS0VCO1XBE2ALgoBN3PFXxnw/ov4HNKptc70.jpg?size=2560x1707&quality=95&sign=03c776dc8006f09953e9f4161c1da217&type=album",
+    name: "file.test"
+  }
 }

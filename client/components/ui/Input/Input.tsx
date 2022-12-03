@@ -45,9 +45,13 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
       setCurrentValidation(validation || undefined)
     }, [setCurrentValidation, validation])
 
+    useEffect(() => {
+      setCurrentValue(value || "")
+    }, [value])
+
     return (
-      <Base>
-        <FieldBase styleType={styleType} className={className}>
+      <Base className={className}>
+        <FieldBase styleType={styleType}>
           {!!prefix && prefix}
           <Field
             ref={ref}

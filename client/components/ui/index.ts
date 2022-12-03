@@ -6,3 +6,14 @@ export { default as Form } from "./Form"
 export { default as Modal } from "./Modal/Modal"
 export { default as Tag } from "./Tag/Tag"
 export { default as File } from "./File/File"
+export { default as Textarea } from "./Textarea/Textarea"
+export type {
+  UploadProps,
+  UploadFileProps,
+  UploadStyleType,
+  UploadValidationType,
+  UploadValidation,
+  Filter
+} from "./Upload/Upload.interface"
+export { default as Upload } from "./Upload/Upload"
+export { default as Loader } from "./Loader/Loader"

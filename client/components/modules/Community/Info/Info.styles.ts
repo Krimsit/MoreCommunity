@@ -1,9 +1,10 @@
 import styled from "styled-components"
 
 import { Container as BaseContainer, Button as BaseButton } from "@ui"
+import { MdSettings } from "react-icons/md"
 
 export const Container = styled.div`
-  transform: translateY(-150px);
+  transform: translateY(-170px);
   max-width: 100%;
   width: 100%;
   display: flex;
@@ -19,6 +20,7 @@ export const Card = styled(BaseContainer).attrs(() => ({
   type: "2",
   styleType: "dark"
 }))`
+  position: relative;
   width: 100%;
   padding: 25px;
 
@@ -62,6 +64,14 @@ export const CardContent = styled.div`
       line-height: 24px;
     }
   }
+`
+
+export const CardSettings = styled(MdSettings)`
+  position: absolute;
+  cursor: pointer;
+  bottom: 25px;
+  right: 25px;
+  font-size: 24px;
 `
 
 export const StreamButton = styled(BaseButton).attrs(() => ({

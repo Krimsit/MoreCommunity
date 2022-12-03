@@ -5,11 +5,13 @@ import { Button } from "@ui"
 export const Container = styled.section.attrs(() => ({
   className: "container2"
 }))`
-  padding: 30px 20px 50px !important;
+  padding: 20px 20px !important;
 `
 
 export const Block = styled.div`
-  margin-top: 80px;
+  &:not(:first-child) {
+    margin-top: 80px;
+  }
 `
 
 export const Communities = styled.div`

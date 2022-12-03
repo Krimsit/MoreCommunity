@@ -1,6 +1,5 @@
-import { Post } from "dto/types/Posts"
+import { Post, Like, Delete } from "dto/types/Posts"
 import { Response } from "types/default"
-import { Like } from "../types/Communities"
 
 export const TestPost: Post = {
   id: 1,
@@ -33,4 +32,10 @@ export const PostLikeFakeData: Response<Like> = {
     followed: true,
     count: 101
   }
+}
+
+export const PostDeleteFakeData: Response<Delete> = {
+  status: 200,
+  message: "Запрос успешно выполнен",
+  data: true
 }

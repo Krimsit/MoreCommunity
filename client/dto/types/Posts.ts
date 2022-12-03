@@ -1,4 +1,4 @@
-export type Post = {
+export interface Post {
   id: number
   title: string
   content: string
@@ -9,7 +9,15 @@ export type Post = {
   communityId: number
 }
 
-export type Like = {
+export interface PostPost {
+  id?: number
+  title: string
+  content: string
+}
+
+export interface Like {
   followed: boolean
   count: number
 }
+
+export type Delete = boolean

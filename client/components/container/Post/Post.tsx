@@ -1,18 +1,18 @@
 import { FC, useState } from "react"
 import { formatDistanceToNow } from "date-fns"
 import ruLocale from "date-fns/locale/ru"
-import { useMediaQuery } from "usehooks-ts"
 
 import { useAll } from "dto/hooks/Files"
 import { useLast } from "dto/hooks/Comments"
-import { useUser } from "dto/hooks/User"
 import { useLike } from "dto/hooks/Posts"
+
+import PostContext from "./PostContext"
 
 import { File } from "@ui"
 import { LikeButton, CommentsButton, QueryWrapper } from "@container"
 import Detail from "./Detail"
 
-import { Post } from "dto/types/Posts"
+import { PostProps } from "./Post.interface"
 
 import {
   Base,
@@ -24,7 +24,7 @@ import {
   Files,
   MoreFiles,
   Controls,
-  ControlsMin,
+  UserControls,
   OpenAllButton,
   CommentsBlock,
   Comments,
@@ -34,28 +34,26 @@ import {
   ShowAllComments
 } from "./Post.styles"
 
-const Post: FC<Post & { styleType?: "light" | "dark" }> = ({
-  id,
-  title,
-  likes,
-  content,
-  comments,
-  createdAt,
-  isMyLike,
-  communityId,
-  styleType = "light"
+const Post: FC<PostProps> = ({
+  post,
+  styleType = "light",
+  isOwner,
+  communityName
 }) => {
-  const { data: filesData, status: filesStatus } = useAll(id)
+  const { data: filesData, status: filesStatus } = useAll(post.id)
   const { data: commentsData, status: commentsStatus } = useLast(
-    communityId,
-    id
+    post.communityId,
+    post.id
   )
-  const { mutateAsync } = useLike(communityId, id)
+  const { mutateAsync: like, status: likeStatus } = useLike(
+    post.communityId,
+    post.id
+  )
 
   const [isOpenDetail, setIsOpenDetail] = useState<boolean>(false)
   const [isOpenAllFiles, setIsOpenAllFiles] = useState<boolean>(false)
-  const [isLike, setIsLike] = useState<boolean>(!!isMyLike)
-  const [likeCount, setLikeCount] = useState<number>(likes)
+  const [isLike, setIsLike] = useState<boolean>(!!post.isMyLike)
+  const [likeCount, setLikeCount] = useState<number>(post.likes)
 
   const detailReducer = {
     open: () => setIsOpenDetail(true),
@@ -65,32 +63,38 @@ const Post: FC<Post & { styleType?: "light" | "dark" }> = ({
   const handleToggleOpenAllFiles = () => setIsOpenAllFiles(!isOpenAllFiles)
 
   const handleLike = () =>
-    mutateAsync().then((result) => {
+    like().then((result) => {
       setIsLike(result.followed)
       setLikeCount(result.count)
     })
 
   return (
-    <>
+    <PostContext.Provider
+      value={{
+        communityId: post.communityId,
+        communityName: communityName,
+        postId: post.id,
+        isOwner: isOwner
+      }}>
       <Base styleType={styleType}>
         <Header>
           <Status>
             <div></div>
             <Time>
-              {formatDistanceToNow(new Date(createdAt), {
+              {formatDistanceToNow(new Date(post.createdAt), {
                 addSuffix: true,
                 locale: ruLocale
               })}
             </Time>
           </Status>
-          <Title>{title}</Title>
+          <Title>{post.title}</Title>
         </Header>
         <Content
           dangerouslySetInnerHTML={{
-            __html: content
+            __html: post.content
           }}
         />
-        <QueryWrapper status={filesStatus}>
+        <QueryWrapper status={filesStatus} loaderSize="2em">
           {!!filesData?.length && (
             <Files>
               {filesData
@@ -112,22 +116,23 @@ const Post: FC<Post & { styleType?: "light" | "dark" }> = ({
           <OpenAllButton onClick={detailReducer.open} styleType={styleType}>
             Открыть полностью
           </OpenAllButton>
-          <ControlsMin>
+          <UserControls>
             <LikeButton
               count={likeCount}
               liked={isLike}
               onLike={handleLike}
               styleType={styleType}
+              loading={likeStatus === "loading"}
             />
             <CommentsButton
-              count={comments}
+              count={post.comments}
               styleType={styleType}
               onClick={detailReducer.open}
             />
-          </ControlsMin>
+          </UserControls>
         </Controls>
         <CommentsBlock>
-          <QueryWrapper status={commentsStatus}>
+          <QueryWrapper status={commentsStatus} loaderSize="2em">
             <Comments>
               {commentsData?.map((item) => (
                 <Comment key={item.id} styleType={styleType}>
@@ -159,14 +164,8 @@ const Post: FC<Post & { styleType?: "light" | "dark" }> = ({
           </QueryWrapper>
         </CommentsBlock>
       </Base>
-      <Detail
-        communityId={communityId}
-        postId={id}
-        open={isOpenDetail}
-        onClose={detailReducer.close}
-        styleType={styleType}
-      />
-    </>
+      {post && <Detail open={isOpenDetail} onClose={detailReducer.close} />}
+    </PostContext.Provider>
   )
 }
 

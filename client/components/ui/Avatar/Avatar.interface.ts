@@ -8,6 +8,9 @@ export interface AvatarProps {
   alt: string
   size?: AvatarSizes
   styleType?: AvatarStyleType
+  overflowContent?: ReactNode
+  noImageContent?: ReactNode
+  loading?: boolean
 }
 
 export interface StylesBase {

@@ -1,6 +1,7 @@
 import styled from "styled-components"
 
 import { Container, Button, Form, Input, Avatar } from "@ui"
+import { MdEdit, MdDelete } from "react-icons/md"
 
 export const Base = styled(Container).attrs(() => ({
   type: "1"
@@ -51,6 +52,8 @@ export const Title = styled.h2`
 export const Content = styled.div<{ isDetail?: boolean }>`
   width: 100%;
   overflow: hidden;
+  min-height: 90px;
+
   ${({ isDetail }) =>
     !isDetail &&
     `
@@ -96,7 +99,30 @@ export const Controls = styled.div`
   }
 `
 
-export const ControlsMin = styled.div`
+export const OwnerControls = styled.div`
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    margin-left: 0;
+  }
+`
+
+export const OwnerControlsEdit = styled(MdEdit)`
+  cursor: pointer;
+  font-size: 24px;
+`
+
+export const OwnerControlsDelete = styled(MdDelete)`
+  cursor: pointer;
+  font-size: 24px;
+  fill: #ff5154;
+`
+
+export const UserControls = styled.div`
   margin-left: auto;
   display: flex;
   align-items: center;
