@@ -9,7 +9,7 @@ import { Post, QueryWrapper } from "@container"
 import { Button } from "@ui"
 import PostSettings from "components/modules/PostSettings"
 
-import { Container, Banner, Content, Posts } from "./Community.styles"
+import { Banner, Container, Content, Posts } from "./Community.styles"
 
 const Community: FC = () => {
   const route = useRouter()
@@ -39,9 +39,11 @@ const Community: FC = () => {
         <Content>
           <Info communityId={communityData?.id || 0} />
           <Posts>
-            <Button onClick={createPostReducer.open} styleType="dark">
-              Создать пост
-            </Button>
+            {communityData?.isOwner && (
+              <Button onClick={createPostReducer.open} styleType="dark">
+                Создать пост
+              </Button>
+            )}
             <QueryWrapper status={postsStatus}>
               {postsData?.map((item) => (
                 <Post

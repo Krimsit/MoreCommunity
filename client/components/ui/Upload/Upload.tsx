@@ -136,7 +136,7 @@ const Upload: FC<UploadProps> = forwardRef<HTMLInputElement, UploadProps>(
       }
 
       getFiles()
-    }, [value])
+    }, [])
 
     useEffect(() => {
       setCurrentValidation(validation || undefined)

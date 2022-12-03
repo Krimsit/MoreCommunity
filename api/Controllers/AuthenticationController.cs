@@ -1,14 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using api.Helpers;
-using api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Any;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
+
+using api.Models;
 
 namespace api.Controllers;
 
@@ -18,14 +16,12 @@ namespace api.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    private IConfiguration _configuration;
+    private readonly IConfiguration _configuration;
 
-    public AuthenticationController(DataContext context, IConfiguration configuration, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+    public AuthenticationController(IConfiguration configuration, UserManager<User> userManager)
     {
         _configuration = configuration;
         _userManager = userManager;
-        _roleManager = roleManager;
     }
     
     [HttpPost("login")]
@@ -39,7 +35,7 @@ public class AuthenticationController : ControllerBase
 
             var authClaims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
@@ -55,12 +51,8 @@ public class AuthenticationController : ControllerBase
                 expiration = token.ValidTo
             }));
         }
-        else
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<object>(500, "Проверьте правильно ли введён логин или пароль", new {}));
-        }
-        
-        return Unauthorized(new QueryResult<object>(401, "Вы не авторизованы", new {}));
+
+        return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<object>(500, "Проверьте правильно ли введён логин или пароль", new {}));
     }
     
     [HttpPost]
@@ -73,21 +65,35 @@ public class AuthenticationController : ControllerBase
 
         User user = new()
         {
+            Avatar = model.Avatar,
             Email = model.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
             UserName = model.Username
         };
+        
         var result = await _userManager.CreateAsync(user, model.Password);
         
         if (!result.Succeeded)
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<object>(500, "Не удалось создать пользователя! Проверьте данные пользователя и повторите попытку", new {}));
+            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Не удалось создать пользователя! Проверьте данные пользователя и повторите попытку", null));
+        
+        var authClaims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Id),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        };
 
-        return Ok(new QueryResult<string>(200, "Запрос успешно выполнен", "Пользователь успешно создан"));
+        var token = GetToken(authClaims);
+
+        return Ok(new QueryResult<object>(200, "Запрос успешно выполнен", new {
+            token = new JwtSecurityTokenHandler().WriteToken(token),
+            expiration = token.ValidTo
+        }));
     }
     
+    [NonAction]
     private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
-        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"] ?? string.Empty));
 
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],

@@ -1,21 +1,21 @@
-import { FC, cloneElement, useEffect, ChangeEvent, ReactElement } from "react"
+import { ChangeEvent, cloneElement, FC, ReactElement, useEffect } from "react"
 import classNames from "classnames"
 import {
-  useForm,
   Controller,
-  useFormContext,
-  FormProvider
+  FormProvider,
+  useForm,
+  useFormContext
 } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 
-import { FormProps, FormFieldProps } from "./Form.interface"
+import { FormFieldProps, FormProps } from "./Form.interface"
 
 import {
-  FormContainer,
   Field,
-  FieldLabel,
   FieldController,
-  FieldDescription
+  FieldDescription,
+  FieldLabel,
+  FormContainer
 } from "./Form.styles"
 
 const isEmpty = (value: any): boolean => {
@@ -40,6 +40,7 @@ const FormField: FC<FormFieldProps> = ({
     getValues,
     formState: { errors }
   } = useFormContext()
+
   return (
     <Field>
       {label && <FieldLabel>{label}</FieldLabel>}

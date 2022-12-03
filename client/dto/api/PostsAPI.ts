@@ -4,6 +4,7 @@ import { api } from "@core"
 
 import { Post, Like, PostPost, Delete } from "dto/types/Posts"
 import { Response } from "types/default"
+import { File } from "../types/Files"
 
 const _api = {
   getAll: (communityId: number): Promise<Response<Post[]>> =>
@@ -33,7 +34,11 @@ const _api = {
   like: (communityId: number, postId: number): Promise<Response<Like>> =>
     api
       .post(`/communities/${communityId}/posts/${postId}/like`)
-      .then((res: AxiosResponse<Response<Like>>) => res.data)
+      .then((res: AxiosResponse<Response<Like>>) => res.data),
+  getFiles: (communityId: number, postId: number): Promise<Response<File[]>> =>
+    api
+      .get(`/communities/${communityId}/posts/${postId}/files`)
+      .then((res: AxiosResponse<Response<File[]>>) => res.data)
 }
 
 export default _api

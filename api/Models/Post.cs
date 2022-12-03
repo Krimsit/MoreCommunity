@@ -7,7 +7,6 @@ interface IPost
     long Id { get; set; }
     string Title { get; set; }
     string Content { get; set; }
-    string[]? Files { get; set; }
 }
 
 public class Post : IPost
@@ -15,7 +14,6 @@ public class Post : IPost
     public long Id { get; set; }
     public string Title { get; set; } = String.Empty;
     public string Content { get; set; } = String.Empty;
-    public string[]? Files { get; set; } = new string[] { };
     public string[] Likes { get; set; } = new string[] { };
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
     public long CommunityId { get; set; }
@@ -29,7 +27,6 @@ public class PostModel: IPost
     public long Id { get; set; }
     public string Title { get; set; } = String.Empty;
     public string Content { get; set; } = String.Empty;
-    public string[]? Files { get; set; } = new string[] { };
 }
 
 public class PostResponse: IPost
@@ -37,14 +34,14 @@ public class PostResponse: IPost
     public long Id { get; set; }
     public string Title { get; set; } = String.Empty;
     public string Content { get; set; } = String.Empty;
-    public string[]? Files { get; set; } = new string[] { };
     public int Likes { get; set; } = 0;
+    public bool IsMyLike { get; set; } = false;
+    public long CommunityId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
 }
 
-public class PostAction<TDataType>
+public class LikePost
 {
-    public long Id { get; set; }
-    public string Action { get; set; }
-    public TDataType? Data { get; set; }
+    public bool isMyLike { get; set; }
+    public int count { get; set; }
 }

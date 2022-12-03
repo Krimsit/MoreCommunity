@@ -9,11 +9,11 @@ import { Community as CommunityProps } from "dto/types/Communities"
 
 import {
   Base,
-  Title,
-  Description,
   Controls,
+  Description,
   StreamButton,
-  StreamStatus
+  StreamStatus,
+  Title
 } from "./Community.styles"
 
 const Community: FC<
@@ -25,18 +25,18 @@ const Community: FC<
   followers,
   description,
   isStreamOnline,
-  isMyLike,
+  isMyFollow,
   isOwner,
   styleType = "light"
 }) => {
   const { mutateAsync } = useFollow(id)
 
-  const [isLike, setIsLike] = useState<boolean>(!!isMyLike)
+  const [isLike, setIsLike] = useState<boolean>(!!isMyFollow)
   const [likeCount, setLikeCount] = useState<number>(followers)
 
   const handleLike = () =>
     mutateAsync().then((result) => {
-      setIsLike(result.followed)
+      setIsLike(result.isMyFollow)
       setLikeCount(result.count)
     })
 

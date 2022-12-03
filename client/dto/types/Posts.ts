@@ -16,7 +16,7 @@ export interface PostPost {
 }
 
 export interface Like {
-  followed: boolean
+  isMyLike: boolean
   count: number
 }
 

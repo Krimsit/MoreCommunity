@@ -60,7 +60,6 @@ export const UserMyCommunitiesFakeData: Response<Community[]> = {
         "Quaerat beatae cum minus. Unde qui consequatur voluptatem quos quo sit omnis. Vel expedita quos.",
       followers: 716,
       keywords: ["installation", "Account", "Tuna"],
-      isStreamOnline: true
     }
   ]
 }

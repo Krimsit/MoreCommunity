@@ -1,10 +1,11 @@
 using System.Security.Claims;
-using api.Helpers;
-using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+using api.Helpers;
+using api.Models;
 
 namespace api.Controllers;
 
@@ -14,6 +15,7 @@ public class PostsController : ControllerBase
 {
     private readonly DataContext _context;
     private readonly UserManager<User> _userManager;
+    private GetResponseObject _getResponseObject = new GetResponseObject();
 
     public PostsController(DataContext context, UserManager<User> userManager)
     {
@@ -24,21 +26,24 @@ public class PostsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<PostResponse>>> GetAll(long communityId)
     {
-        Community community = await _context.Communities.Include("Posts")
-            .Where(item => item != null && item.Id == communityId).FirstOrDefaultAsync();
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
+
+        Community? community = await _context.Communities.Include("Posts")
+            .Where(item => item.Id == communityId).FirstOrDefaultAsync();
 
         if (community == null)
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти сообщество", null));
         }
 
-        IOrderedEnumerable<Post?> posts = community.Posts.OrderBy(item => item!.CreatedAt)!;
+        IOrderedEnumerable<Post> posts = community.Posts.OrderBy(item => item!.CreatedAt)!;
 
         List<PostResponse> postResponses = new List<PostResponse>();
 
-        foreach (Post? post in posts)
+        foreach (Post post in posts)
         {
-            postResponses.Add(CreateResponsePostObject(post));
+            postResponses.Add(_getResponseObject.Post(post, user));
         }
 
         return Ok(new QueryResult<List<PostResponse>>(200, "Запрос успешно выполнен", postResponses));
@@ -48,9 +53,10 @@ public class PostsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<QueryResult<PostResponse>>> Create(long communityId, [FromBody] PostModel model)
     {
-        string? userId = GetUserIdFromJwtToken();
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
 
-        if (userId == null)
+        if (user == null)
         {
             return StatusCode(StatusCodes.Status401Unauthorized,
                 new QueryResult<string>(401, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
@@ -58,12 +64,20 @@ public class PostsController : ControllerBase
 
         Community? community = await _context.Communities.FindAsync(communityId);
 
-        if (community == null || community.OwnerId != userId)
+        if (community == null || community.OwnerId != user.Id)
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти сообщество", null));
         }
 
-        Post? post = await CreateDbPostObject(communityId, model);
+        Post post = new Post()
+        {
+            Id = model.Id,
+            CommunityId = communityId,
+            Content = model.Content,
+            CreatedAt = DateTime.UtcNow,
+            Likes = new string[] { },
+            Title = model.Title
+        };
 
         _context.Posts.Add(post);
 
@@ -78,14 +92,17 @@ public class PostsController : ControllerBase
         }
 
         return StatusCode(StatusCodes.Status201Created,
-            new QueryResult<PostResponse?>(200, "Пост успешно создан", CreateResponsePostObject(post)));
+            new QueryResult<PostResponse?>(200, "Пост успешно создан", _getResponseObject.Post(post, user)));
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<QueryResult<PostResponse>>> GetById(long communityId, long id)
     {
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
+
         Community? community = await _context.Communities.Include("Posts")
-            .Where(item => item != null && item.Id == communityId).FirstOrDefaultAsync();
+            .Where(item => item.Id == communityId).FirstOrDefaultAsync();
 
         if (community == null)
         {
@@ -99,35 +116,40 @@ public class PostsController : ControllerBase
             return NotFound(new QueryResult<string>(404, "Не удалось найти пост", null));
         }
 
-        return Ok(new QueryResult<PostResponse?>(200, "Запрос успешно выполнен", CreateResponsePostObject(post)));
+        return Ok(new QueryResult<PostResponse?>(200, "Запрос успешно выполнен", _getResponseObject.Post(post, user)));
     }
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<ActionResult<QueryResult<PostResponse>>> Update(long communityId, long id, [FromBody] PostModel model)
+    public async Task<ActionResult<QueryResult<PostResponse>>> Update(long communityId, long id,
+        [FromBody] PostModel model)
     {
-        string? userId = GetUserIdFromJwtToken();
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
 
-        if (userId == null)
+        if (user == null)
         {
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new QueryResult<string>(500, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
         }
 
         Community? community = await _context.Communities.Include("Posts")
-            .Where(item => item != null && item.Id == communityId).AsNoTracking().SingleOrDefaultAsync();
+            .Where(item => item.Id == communityId).AsNoTracking().SingleOrDefaultAsync();
 
         if (community == null || community.OwnerId != userId)
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти сообщество", null));
         }
 
-        Post? post = await CreateDbPostObject(communityId, model);
+        Post? post = community.Posts.FirstOrDefault(item => item != null && item.Id == id);
 
-        if (!community.Posts.Any(item => item != null && item.Id == id) || id != post.Id)
+        if (post == null)
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти пост", null));
         }
+
+        post.Title = model.Title;
+        post.Content = model.Content;
 
         _context.Entry(post).State = EntityState.Modified;
 
@@ -142,30 +164,30 @@ public class PostsController : ControllerBase
         }
 
         return StatusCode(StatusCodes.Status201Created,
-            new QueryResult<PostResponse?>(200, "Пост успешно обновлён", CreateResponsePostObject(post)));
+            new QueryResult<PostResponse>(200, "Пост успешно обновлён", _getResponseObject.Post(post, user)));
     }
 
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(long communityId, long id)
     {
-        string? userId = GetUserIdFromJwtToken();
+        string userId = GetUserIdFromJwtToken();
 
-        if (userId == null)
+        if (userId == "")
         {
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new QueryResult<string>(500, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
         }
 
         Community? community = await _context.Communities.Include("Posts")
-            .Where(item => item != null && item.Id == communityId).AsNoTracking().SingleOrDefaultAsync();
+            .Where(item => item.Id == communityId).AsNoTracking().SingleOrDefaultAsync();
 
         if (community == null || community.OwnerId != userId)
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти сообщество", null));
         }
 
-        Post? post = community.Posts.Where(item => item.Id == id).FirstOrDefault();
+        Post? post = community.Posts.Where(item => item != null && item.Id == id).FirstOrDefault();
 
         if (post == null)
         {
@@ -184,110 +206,97 @@ public class PostsController : ControllerBase
                 new QueryResult<string>(500, "Возникли ошибки при удалении поста", null));
         }
 
-        return Ok(new QueryResult<string>(200, "Пост успешно удалено", null));
+        return Ok(new QueryResult<bool>(200, "Пост успешно удалено", true));
     }
 
     [Authorize]
     [HttpPost("{id}/like")]
     public async Task<ActionResult<int>> Like(long communityId, long id)
     {
-        string? userId = GetUserIdFromJwtToken();
+        string userId = GetUserIdFromJwtToken();
+        User? user = await _userManager.FindByIdAsync(userId);
 
-            if (userId == null)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized,
-                    new QueryResult<string>(401, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
-            }
+        if (user == null)
+        {
+            return StatusCode(StatusCodes.Status401Unauthorized,
+                new QueryResult<string>(401, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
+        }
 
-            User? user = await _userManager.FindByIdAsync(userId);
+        Community? community = await _context.Communities.Include("Posts")
+            .Where(item => item.Id == communityId).AsNoTracking().SingleOrDefaultAsync();
 
-            if (user == null)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized,
-                    new QueryResult<string>(401, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
-            }
+        if (community == null)
+        {
+            return NotFound(new QueryResult<string>(404, "Не удалось найти сообщество", null));
+        }
 
-            Community? community = await _context.Communities.Include("Posts")
-                .Where(item => item != null && item.Id == communityId).AsNoTracking().SingleOrDefaultAsync();
+        Post? post = community.Posts.FirstOrDefault(item => item != null && item.Id == id);
 
-            if (community == null || community.OwnerId != userId)
-            {
-                return NotFound(new QueryResult<string>(404, "Не удалось найти сообщество", null));
-            }
+        if (post == null)
+        {
+            return NotFound(new QueryResult<string>(404, "Не удалось найти пост", null));
+        }
+        
+        bool isMyLike;
 
-            Post? post = community.Posts.FirstOrDefault(item => item != null && item.Id == id);
+        if (post.Likes.Contains(userId))
+        {
+            post.Likes = post.Likes.Where(item => item != user.Id).ToArray();
+            user.LikedPosts = user.LikedPosts.Where(item => item != post.Id).ToArray();
+            isMyLike = false;
+        }
+        else
+        {
+            post.Likes = post.Likes.Append(user.Id).ToArray();
+            user.LikedPosts = user.LikedPosts.Append(post.Id).ToArray();
+            isMyLike = true;
+        }
 
-            if (post == null)
-            {
-                return NotFound(new QueryResult<string>(404, "Не удалось найти пост", null));
-            }
+        _context.Entry(post).State = EntityState.Modified;
 
-            if (post.Likes.Contains(userId))
-            {
-                post.Likes = post.Likes.Where(item => item != user.Id).ToArray();
-                user.LikedPosts = user.LikedPosts.Where(item => item != post.Id).ToArray();
-            }
-            else
-            {
-                post.Likes = post.Likes.Append(user.Id).ToArray();
-                user.LikedPosts = user.LikedPosts.Append(post.Id).ToArray();
-            }
+        try
+        {
+            await _context.SaveChangesAsync();
+            await _userManager.UpdateAsync(user);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500, "Возникли ошибки при лайке поста", null));
+        }
 
-            _context.Entry(post).State = EntityState.Modified;
+        return Ok(new QueryResult<LikePost>(200, "Запрос успешно выполнен", new LikePost(){ isMyLike = isMyLike, count = post.Likes.Length}));
+    }
+    
+    [HttpGet("{id}/files")]
+    public async Task<ActionResult<QueryResult<PostResponse>>> GetFiles(long communityId, long id)
+    {
+        Community? community = await _context.Communities.Include("Posts")
+            .Where(item => item.Id == communityId).FirstOrDefaultAsync();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                await _userManager.UpdateAsync(user);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new QueryResult<string>(500, "Возникли ошибки при лайке поста", null));
-            }
+        if (community == null)
+        {
+            return NotFound(new QueryResult<string>(404, "Не удалось найти сообщество", null));
+        }
 
-            return Ok(new QueryResult<int>(200, "Запрос успешно выполнен", post.Likes.Length));
+        Post? post = community.Posts.FirstOrDefault(item => item != null && item.Id == id);
+
+        if (post == null)
+        {
+            return NotFound(new QueryResult<string>(404, "Не удалось найти пост", null));
+        }
+
+        List<Upload> files = _context.Files.Where(item => item.PostId == post.Id).ToList();
+
+        return Ok(new QueryResult<List<Upload>>(200, "Запрос успешно выполнен", files));
     }
 
     [NonAction]
-    private string? GetUserIdFromJwtToken()
+    private string GetUserIdFromJwtToken()
     {
         ClaimsIdentity? claimsIdentity = this.User.Identity as ClaimsIdentity;
         string? userId = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value;
 
-        return userId;
-    }
-
-    [NonAction]
-    private PostResponse CreateResponsePostObject(Post? post)
-    {
-        PostResponse postResponse = new PostResponse()
-        {
-            Id = post.Id,
-            Content = post.Content,
-            Files = post.Files,
-            Likes = post.Likes.Length,
-            Title = post.Title,
-            CreatedAt = post.CreatedAt
-        };
-
-        return postResponse;
-    }
-
-    [NonAction]
-    private async Task<Post?> CreateDbPostObject(long communityId, PostModel model)
-    {
-        Post? post = new Post()
-        {
-            Id = model.Id,
-            CommunityId = communityId,
-            Content = model.Content,
-            CreatedAt = DateTime.UtcNow,
-            Files = model.Files,
-            Likes = new string[] { },
-            Title = model.Title
-        };
-
-        return post;
+        return userId ?? "";
     }
 }

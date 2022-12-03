@@ -2,14 +2,18 @@ import { FC, useState } from "react"
 
 import { useUser } from "dto/hooks/User"
 
-import { Button, Avatar, Modal } from "@ui"
+import { Avatar, Modal } from "@ui"
 import Authentication from "components/modules/Authentication"
-import { MdMenu } from "react-icons/md"
+import UserSettings from "components/modules/UserSettings"
+import { MdSettings } from "react-icons/md"
 
-import { Container, Content, LoginButton } from "./Header.styles"
+import { Container, Content, LoginButton, Menu } from "./Header.styles"
+import Link from "next/link"
 
 const Header: FC = () => {
   const { data } = useUser()
+
+  const [isOpenUserSettings, setIsOpenUserSettings] = useState<boolean>(false)
   const [isOpen, setIsOpen] = useState(false)
 
   const modalReducer = {
@@ -17,14 +21,19 @@ const Header: FC = () => {
     close: () => setIsOpen(false)
   }
 
+  const userSettingsReducer = {
+    open: () => setIsOpenUserSettings(true),
+    close: () => setIsOpenUserSettings(false)
+  }
+
   return (
     <>
       <Container>
         <Content>
-          <Button styleType="dark">
-            <MdMenu />
-            Меню
-          </Button>
+          <Menu>
+            <Link href="/">Главная</Link>
+            <Link href="/communities">Все сообщества</Link>
+          </Menu>
           {!data ? (
             <LoginButton onClick={modalReducer.open}>
               Войти / Зарегестрироваться
@@ -33,6 +42,8 @@ const Header: FC = () => {
             <Avatar
               img={data?.avatar || ""}
               alt={data?.username}
+              onClick={userSettingsReducer.open}
+              overflowContent={<MdSettings />}
               size="small"
               styleType="dark"
             />
@@ -42,6 +53,11 @@ const Header: FC = () => {
       <Modal open={isOpen} onClose={modalReducer.close}>
         <Authentication />
       </Modal>
+      <UserSettings
+        open={isOpenUserSettings}
+        onClose={userSettingsReducer.close}
+        userId={data?.id || ""}
+      />
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from "react"
+import { FC, useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { v4 as uuid } from "uuid"
 import { useMediaQuery } from "usehooks-ts"
@@ -11,15 +11,15 @@ import CommunitySettings from "components/modules/CommunitySettings"
 import { MdPlayArrow } from "react-icons/md"
 
 import {
-  Container,
   Card,
   CardContent,
   CardSettings,
+  Container,
+  Description,
+  ShowAllButton,
   StreamButton,
   StreamStatus,
-  Description,
-  Tags,
-  ShowAllButton
+  Tags
 } from "./Info.styles"
 
 const Info: FC<{ communityId: number }> = ({ communityId }) => {
@@ -30,7 +30,7 @@ const Info: FC<{ communityId: number }> = ({ communityId }) => {
   const { mutateAsync: follow } = useFollow(communityId)
 
   const [isShowAll, setIsShowAll] = useState<boolean>(!isAdaptive)
-  const [isLike, setIsLike] = useState<boolean>(!!communityData?.isMyLike)
+  const [isLike, setIsLike] = useState<boolean>(!!communityData?.isMyFollow)
   const [likeCount, setLikeCount] = useState<number>(
     communityData?.followers || 0
   )
@@ -45,7 +45,7 @@ const Info: FC<{ communityId: number }> = ({ communityId }) => {
 
   const handleLike = () =>
     follow().then((result) => {
-      setIsLike(result.followed)
+      setIsLike(result.isMyFollow)
       setLikeCount(result.count)
     })
 
@@ -90,7 +90,9 @@ const Info: FC<{ communityId: number }> = ({ communityId }) => {
               )}
             </div>
           </CardContent>
-          <CardSettings onClick={settingsReducer.open} />
+          {communityData?.isOwner && (
+            <CardSettings onClick={settingsReducer.open} />
+          )}
         </Card>
         {isShowAll && (
           <>

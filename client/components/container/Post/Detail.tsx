@@ -1,18 +1,16 @@
-import { FC, useState, useEffect, useContext } from "react"
+import { FC, useContext, useEffect, useState } from "react"
 import { formatDistanceToNow } from "date-fns"
 import ruLocale from "date-fns/locale/ru"
 import { useMediaQuery } from "usehooks-ts"
 
-import { useById } from "dto/hooks/Posts"
-import { useAll as useAllFiles } from "dto/hooks/Files"
+import { useById, useDelete, useFiles, useLike } from "dto/hooks/Posts"
 import { useAll as useAllComments, useCreate } from "dto/hooks/Comments"
 import { useUser } from "dto/hooks/User"
-import { useLike, useDelete } from "dto/hooks/Posts"
 
 import PostContext from "./PostContext"
 
-import { File, Avatar, Modal } from "@ui"
-import { LikeButton, CommentsButton, QueryWrapper } from "@container"
+import { Avatar, File, Modal } from "@ui"
+import { CommentsButton, LikeButton, QueryWrapper } from "@container"
 import PostSettings from "components/modules/PostSettings"
 import { MdSend } from "react-icons/md"
 
@@ -20,25 +18,25 @@ import { Comment as IComment, PostComment } from "dto/types/Comments"
 
 import {
   Base,
+  Comment,
+  CommentData,
+  Comments,
+  CommentsBlock,
+  Content,
+  Controls,
+  CreateComment,
+  CreateCommentAvatar,
+  CreateCommentButton,
+  CreateCommentInput,
+  Files,
   Header,
+  OwnerControls,
+  OwnerControlsDelete,
+  OwnerControlsEdit,
   Status,
   Time,
   Title,
-  Content,
-  Files,
-  Controls,
-  OwnerControls,
-  OwnerControlsEdit,
-  OwnerControlsDelete,
-  UserControls,
-  CommentsBlock,
-  Comments,
-  CreateComment,
-  CreateCommentAvatar,
-  CreateCommentInput,
-  CreateCommentButton,
-  Comment,
-  CommentData
+  UserControls
 } from "./Post.styles"
 
 const Post: FC<{
@@ -52,7 +50,8 @@ const Post: FC<{
 
   const { data: postData, status: postStatus } = useById(communityId, postId)
   const { data: userData } = useUser()
-  const { data: filesData, status: filesStatus } = useAllFiles(
+  const { data: filesData, status: filesStatus } = useFiles(
+    communityId,
     postData?.id ? postData.id : 0
   )
   const { data: commentsData, status: commentsStatus } = useAllComments(
@@ -87,7 +86,7 @@ const Post: FC<{
 
   const handleLike = () =>
     like().then((result) => {
-      setIsLike(result.followed)
+      setIsLike(result.isMyLike)
       setLikeCount(result.count)
     })
 
@@ -100,10 +99,15 @@ const Post: FC<{
     setComments(commentsData || [])
   }, [commentsData])
 
+  useEffect(() => {
+    setIsLike(!!postData?.isMyLike)
+    setLikeCount(postData?.likes || 0)
+  }, [postData])
+
   return (
     <>
       <Modal open={open} onClose={onClose}>
-        <Base styleType="dark">
+        <Base styleType="dark" isDetail>
           <QueryWrapper status={postStatus}>
             <Header>
               <Status>
@@ -165,10 +169,11 @@ const Post: FC<{
                         <span>{item.username}</span>
                         <p>{item.content}</p>
                         <span className="date">
-                          {formatDistanceToNow(new Date(item.createdAd), {
-                            addSuffix: true,
-                            locale: ruLocale
-                          })}
+                          {item.createdAt &&
+                            formatDistanceToNow(new Date(item.createdAt), {
+                              addSuffix: true,
+                              locale: ruLocale
+                            })}
                         </span>
                       </CommentData>
                     </Comment>
@@ -203,6 +208,7 @@ const Post: FC<{
           onClose={settingReducer.close}
           communityId={communityId}
           communityName={communityName}
+          postId={postId}
           initialValues={{
             id: postData?.id || 0,
             title: postData?.title || "",

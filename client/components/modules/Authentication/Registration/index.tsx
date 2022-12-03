@@ -5,18 +5,18 @@ import { UseFormReturn } from "react-hook-form"
 import { useUpload } from "dto/hooks/Files"
 import { useRegistration } from "dto/hooks/Authentication"
 
-import { Form, Upload, Avatar, UploadFileProps } from "@ui"
+import { Avatar, Form, Upload, UploadFileProps } from "@ui"
 import { MdSend, MdUpload } from "react-icons/md"
 
 import { RegistrationData } from "dto/types/Authentication"
 
 import {
-  Fields,
-  Title,
-  Input,
   Controls,
+  Fields,
+  Input,
   Question,
-  SendButton
+  SendButton,
+  Title
 } from "../Authentication.styles"
 
 const validationSchema = yup.object().shape({
@@ -41,7 +41,7 @@ const Authorization: FC<{
 
     await upload({
       ...values.avatar[0],
-      folder: `communities/avatar`
+      folder: `users/avatars`
     }).then((result) => {
       _avatar = result.url
     })

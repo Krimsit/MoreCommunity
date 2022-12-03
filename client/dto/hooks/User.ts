@@ -21,11 +21,6 @@ export const useUser = (): UseQueryResult<User | null> =>
     }
   )
 
-export const useSettings = (userId: string): UseQueryResult<Settings> =>
-  useQuery([`user_${userId}`, "settings"], () => userAPI.getSettings(userId), {
-    select: (response) => response.data
-  })
-
 export const useUpdate = (
   userId: string
 ): UseMutationResult<User, { [key: string]: string }, Settings> =>

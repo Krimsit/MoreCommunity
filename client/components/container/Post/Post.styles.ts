@@ -1,12 +1,12 @@
 import styled from "styled-components"
 
-import { Container, Button, Form, Input, Avatar } from "@ui"
-import { MdEdit, MdDelete } from "react-icons/md"
+import { Avatar, Button, Container, Form, Input } from "@ui"
+import { MdDelete, MdEdit } from "react-icons/md"
 
 export const Base = styled(Container).attrs(() => ({
   type: "1"
-}))`
-  min-width: 0;
+}))<{ isDetail?: boolean }>`
+  min-width: ${({ isDetail }) => (isDetail ? "700px" : 0)};
   min-height: 0;
   max-width: 700px;
   width: 100%;
@@ -16,6 +16,7 @@ export const Base = styled(Container).attrs(() => ({
   gap: 25px;
 
   @media screen and (max-width: 1300px) {
+    min-width: 0;
     max-width: 100%;
   }
 `
