@@ -1,2 +1,3 @@
 export { default as queryClient } from "./queryClient"
-export { default as test } from "./test"
+export { default as theme } from "./theme"
+export { default as api } from "./api"

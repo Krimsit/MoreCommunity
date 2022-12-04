@@ -1,44 +1,58 @@
-import { FC } from "react"
 import { Hydrate, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import Head from "next/head"
 import { AppProps } from "next/app"
-import { createGlobalStyle } from "styled-components"
+import Head from "next/head"
+import { createGlobalStyle, ThemeProvider } from "styled-components"
 
-import { queryClient } from "../core"
+import { queryClient, theme } from "@core"
+
+import Layout from "@layout"
 
 const GlobalStyle = createGlobalStyle`
   html, body, #__next {
     height: 100%;
     margin: 0;
     transition: all 0.2s ease;
-    font-family: 'Roboto', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #F5F5F5;
+    background: #333333;
   }
-  
+
   * {
     outline: none;
   }
+
+  .container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .container2 {
+    position: relative;
+    max-width: 1420px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
 `
 
-const MyApp: FC<AppProps> = ({ Component, pageProps }) => {
+const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Hydrate state={pageProps.dehydratedState}>
-        <GlobalStyle />
-        <Head>
-          <meta name="viewport" content="viewport-fit=cover" />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Roboto&display=optional"
-            rel="stylesheet"
-          />
-        </Head>
-        <ReactQueryDevtools initialIsOpen={false} />
-        <Component {...pageProps} />
-      </Hydrate>
-    </QueryClientProvider>
+    <>
+      <Head>
+        <title>More Community</title>
+      </Head>
+      <QueryClientProvider client={queryClient}>
+        <Hydrate state={pageProps.dehydratedState}>
+          <GlobalStyle />
+          <ReactQueryDevtools initialIsOpen={false} />
+          <ThemeProvider theme={theme}>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </ThemeProvider>
+        </Hydrate>
+      </QueryClientProvider>
+    </>
   )
 }
 
