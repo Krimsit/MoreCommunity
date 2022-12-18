@@ -17,16 +17,22 @@ const Community: FC = () => {
   const { data: communityData, status: communityStatus } = useById(
     Number(route.query.id)
   )
-  const { data: postsData, status: postsStatus } = useAll(
-    communityData?.id ? communityData.id : 0,
-    !!route.query.id
-  )
+  const {
+    data: postsData,
+    status: postsStatus,
+    refetch: refetchAllPosts
+  } = useAll(communityData?.id ? communityData.id : 0, !!route.query.id)
 
   const [isOpenCreatePost, setIsOpenCreatePost] = useState<boolean>(false)
 
   const createPostReducer = {
     open: () => setIsOpenCreatePost(true),
     close: () => setIsOpenCreatePost(false)
+  }
+
+  const handleUpdatePosts = () => {
+    createPostReducer.close()
+    refetchAllPosts()
   }
 
   return (
@@ -62,6 +68,7 @@ const Community: FC = () => {
         <PostSettings
           open={isOpenCreatePost}
           onClose={createPostReducer.close}
+          onSuccess={handleUpdatePosts}
           communityId={communityData?.id || 0}
           communityName={communityData?.name || ""}
         />

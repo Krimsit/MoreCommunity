@@ -3,7 +3,7 @@ import { formatDistanceToNow } from "date-fns"
 import ruLocale from "date-fns/locale/ru"
 import { useMediaQuery } from "usehooks-ts"
 
-import { useById, useDelete, useFiles, useLike } from "dto/hooks/Posts"
+import { useAll, useById, useDelete, useFiles, useLike } from "dto/hooks/Posts"
 import { useAll as useAllComments, useCreate } from "dto/hooks/Comments"
 import { useUser } from "dto/hooks/User"
 
@@ -48,12 +48,14 @@ const Post: FC<{
 
   const isMobile = useMediaQuery("(max-width: 768px)")
 
+  const { refetch: refetchAll } = useAll(communityId, true)
   const { data: postData, status: postStatus } = useById(communityId, postId)
   const { data: userData } = useUser()
-  const { data: filesData, status: filesStatus } = useFiles(
-    communityId,
-    postData?.id ? postData.id : 0
-  )
+  const {
+    data: filesData,
+    status: filesStatus,
+    refetch: refetchFiles
+  } = useFiles(communityId, postData?.id ? postData.id : 0)
   const { data: commentsData, status: commentsStatus } = useAllComments(
     communityId,
     postData?.id ? postData.id : 0
@@ -82,6 +84,12 @@ const Post: FC<{
       setIsOpenSettings(true)
     },
     close: () => setIsOpenSettings(false)
+  }
+
+  const handleUpdatePost = () => {
+    settingReducer.close()
+    refetchAll()
+    refetchFiles()
   }
 
   const handleLike = () =>
@@ -206,6 +214,7 @@ const Post: FC<{
         <PostSettings
           open={isOpenSettings}
           onClose={settingReducer.close}
+          onSuccess={handleUpdatePost}
           communityId={communityId}
           communityName={communityName}
           postId={postId}

@@ -57,11 +57,12 @@ const Textarea: FC<TextareaProps> = forwardRef<
 
     useEffect(() => {
       handleUpdateHeight()
+      setCurrentValue(value || "")
     }, [value])
 
     return (
-      <Base>
-        <FieldBase styleType={styleType} className={className}>
+      <Base className={className}>
+        <FieldBase styleType={styleType}>
           <Field
             ref={(node) => {
               if (node) {

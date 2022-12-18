@@ -1,13 +1,21 @@
 using System.Text;
 using System.Text.Json.Serialization;
-using api.Helpers;
-using api.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+
+using api.Helpers;
+using api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((hostContext, services, configuration) =>
+{
+    configuration.WriteTo.Console();
+    configuration.WriteTo.File("logs/log.log", rollingInterval: RollingInterval.Day);
+});
 
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("WebApiDatabase")));

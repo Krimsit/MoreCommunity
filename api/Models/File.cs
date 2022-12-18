@@ -19,3 +19,10 @@ public class CreateUpload
     public string Type{ get; set; } = String.Empty;
     public long? PostId { get; set; }
 }
+
+public class UploadPostFiles
+{
+    public long PostId { get; set; }
+    public string Folder { get; set; }
+    public List<CreateUpload> files { get; set; }
+}
