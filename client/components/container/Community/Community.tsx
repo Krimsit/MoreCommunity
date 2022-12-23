@@ -1,4 +1,7 @@
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
+import Link from "next/link"
+
+import { streamSocket } from "@core"
 
 import { useFollow } from "dto/hooks/Communities"
 
@@ -24,13 +27,14 @@ const Community: FC<
   name,
   followers,
   description,
-  isStreamOnline,
   isMyFollow,
   isOwner,
+  streamId,
   styleType = "light"
 }) => {
   const { mutateAsync } = useFollow(id)
 
+  const [stream, setStream] = useState<boolean>(!!streamId)
   const [isLike, setIsLike] = useState<boolean>(!!isMyFollow)
   const [likeCount, setLikeCount] = useState<number>(followers)
 
@@ -39,6 +43,14 @@ const Community: FC<
       setIsLike(result.isMyFollow)
       setLikeCount(result.count)
     })
+
+  useEffect(() => {
+    streamSocket.on(
+      "COMMUNITY:STREAM_STATUS",
+      (data: { communityId: number; isOnline: boolean }) =>
+        data.communityId === id && setStream(data.isOnline)
+    )
+  }, [id])
 
   return (
     <Base styleType={styleType}>
@@ -62,11 +74,17 @@ const Community: FC<
         ) : (
           `${likeCount} подписчиков`
         )}
-        {isStreamOnline && (
-          <StreamButton styleType={styleType}>
-            <StreamStatus />
-            Стрим
-          </StreamButton>
+        {stream && (
+          <Link
+            href={{
+              pathname: "/communities/[id]/stream",
+              query: { id: id }
+            }}>
+            <StreamButton styleType={styleType}>
+              <StreamStatus />
+              Стрим
+            </StreamButton>
+          </Link>
         )}
       </Controls>
     </Base>

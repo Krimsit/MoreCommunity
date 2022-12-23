@@ -9,6 +9,7 @@ export type Community = {
   isStreamOnline?: boolean
   isMyFollow?: boolean
   isOwner?: boolean
+  streamId: string
 }
 
 export interface PostCommunity {

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
-
 using api.Models;
 
 namespace api.Controllers;
@@ -23,10 +22,10 @@ public class AuthenticationController : ControllerBase
         _configuration = configuration;
         _userManager = userManager;
     }
-    
+
     [HttpPost("login")]
     public async Task<ActionResult<QueryResult<object>>> Login([FromBody] LoginModel model)
-    { 
+    {
         var user = await _userManager.FindByNameAsync(model.Username);
 
         if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
@@ -46,22 +45,25 @@ public class AuthenticationController : ControllerBase
 
             var token = GetToken(authClaims);
 
-            return Ok(new QueryResult<object>(200, "Запрос успешно выполнен", new {
+            return Ok(new QueryResult<object>(200, "Запрос успешно выполнен", new
+            {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo
             }));
         }
 
-        return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<object>(500, "Проверьте правильно ли введён логин или пароль", new {}));
+        return StatusCode(StatusCodes.Status500InternalServerError,
+            new QueryResult<object>(500, "Проверьте правильно ли введён логин или пароль", new { }));
     }
-    
+
     [HttpPost]
     [Route("registration")]
     public async Task<ActionResult<QueryResult<object>>> Register([FromBody] RegisterModel model)
     {
         var userExists = await _userManager.FindByNameAsync(model.Username);
         if (userExists != null)
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Такой пользователь уже существует", ""));
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500, "Такой пользователь уже существует", ""));
 
         User user = new()
         {
@@ -70,12 +72,14 @@ public class AuthenticationController : ControllerBase
             SecurityStamp = Guid.NewGuid().ToString(),
             UserName = model.Username
         };
-        
+
         var result = await _userManager.CreateAsync(user, model.Password);
-        
+
         if (!result.Succeeded)
-            return StatusCode(StatusCodes.Status500InternalServerError, new QueryResult<string>(500, "Не удалось создать пользователя! Проверьте данные пользователя и повторите попытку", null));
-        
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new QueryResult<string>(500,
+                    "Не удалось создать пользователя! Проверьте данные пользователя и повторите попытку", null));
+
         var authClaims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, user.Id),
@@ -84,16 +88,18 @@ public class AuthenticationController : ControllerBase
 
         var token = GetToken(authClaims);
 
-        return Ok(new QueryResult<object>(200, "Запрос успешно выполнен", new {
+        return Ok(new QueryResult<object>(200, "Запрос успешно выполнен", new
+        {
             token = new JwtSecurityTokenHandler().WriteToken(token),
             expiration = token.ValidTo
         }));
     }
-    
+
     [NonAction]
     private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
-        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"] ?? string.Empty));
+        var authSigningKey =
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"] ?? string.Empty));
 
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],

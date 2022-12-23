@@ -25,7 +25,8 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
       className,
       styleType = "light",
       validation,
-      autoComplete
+      autoComplete,
+      readOnly
     },
     ref
   ) => {
@@ -62,6 +63,7 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
             onChange={handleChange}
             disabled={disable}
             autoComplete={!autoComplete ? "off" : ""}
+            readOnly={readOnly}
           />
           {!!currentValidation?.type && (
             <FieldValidation type={currentValidation?.type}>

@@ -1,18 +1,27 @@
 import { FC, useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 
-import { useUpload } from "dto/hooks/Files"
+import { useUploadPostFiles } from "dto/hooks/Files"
 import { useCreate, useUpdate } from "dto/hooks/Posts"
 
-import { Modal, Button, Upload, UploadFileProps } from "@ui"
+import { Button, Modal, Upload, UploadFileProps } from "@ui"
 import { MdUpload } from "react-icons/md"
 
 import { PostPost } from "dto/types/Posts"
-import { File as IFile } from "dto/types/Files"
 import { CreatePostProps } from "./PostSettings.interface"
 
-import { Base, Title, Input, Textarea, Form } from "./PostSettings.styles"
+import { Base, Form, Input, Textarea, Title } from "./PostSettings.styles"
 import * as yup from "yup"
+import { PayloadFile } from "../../../dto/types/Files"
+
+const toBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () =>
+      resolve(reader?.result ? reader.result.toString() : "")
+    reader.onerror = (error) => reject(error)
+  })
 
 const validationSchema = yup.object().shape({
   title: yup.string().required("Введите заголовок!"),
@@ -25,9 +34,9 @@ const CreatePost: FC<CreatePostProps> = ({
   initialValues,
   communityId,
   postId,
-  communityName
+  onSuccess
 }) => {
-  const { mutate: upload, status: uploadStatus } = useUpload()
+  const { mutateAsync: upload, status: uploadStatus } = useUploadPostFiles()
   const { mutateAsync: create, status: createStatus } = useCreate(communityId)
   const { mutateAsync: update, status: updateStatus } = useUpdate(
     communityId,
@@ -36,16 +45,27 @@ const CreatePost: FC<CreatePostProps> = ({
 
   const [formMethods, setFormMethods] = useState<UseFormReturn | null>(null)
 
-  const handleUploadFiles = async (id: number, files?: UploadFileProps[]) => {
-    if (files?.length) {
-      files.forEach((file) => {
-        upload({
-          ...file,
-          folder: `communities/${communityName}/posts_${id}`,
-          postId: id
-        })
+  const handleUploadFiles = async (
+    id: number,
+    files: UploadFileProps[] = []
+  ) => {
+    const _files: PayloadFile[] = await Promise.all(
+      files.map(async (item) => {
+        return {
+          file: await toBase64(item.originalFile),
+          type: item.type,
+          name: item.name
+        }
       })
-    }
+    )
+
+    return new Promise((resolve) => {
+      upload({
+        postId: id,
+        folder: `posts/community_${communityId}/post_${id}`,
+        files: _files
+      }).then(() => resolve(true))
+    })
   }
 
   const handleSubmit = async (
@@ -58,7 +78,9 @@ const CreatePost: FC<CreatePostProps> = ({
 
     postId
       ? update(_data)
-          .then((post) => handleUploadFiles(post.id, values.files))
+          .then((post) =>
+            handleUploadFiles(post.id, values.files).then(() => onSuccess())
+          )
           .catch((error: { [key: string]: string }) => {
             Object.keys(error).forEach((key) => {
               formMethods?.setError(key, {
@@ -68,7 +90,9 @@ const CreatePost: FC<CreatePostProps> = ({
             })
           })
       : create(_data)
-          .then((post) => handleUploadFiles(post.id, values.files))
+          .then((post) =>
+            handleUploadFiles(post.id, values.files).then(() => onSuccess())
+          )
           .catch((error: { [key: string]: string }) => {
             Object.keys(error).forEach((key) => {
               formMethods?.setError(key, {

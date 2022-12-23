@@ -10,8 +10,7 @@ import postsAPI from "dto/api/PostsAPI"
 import { Post, Like, PostPost, Delete } from "dto/types/Posts"
 import { Response } from "types/default"
 import { AxiosError } from "axios"
-import { File } from "../types/Files"
-import filesAPI from "../api/FilesAPI"
+import { File } from "dto/types/Files"
 
 export const useAll = (
   communityId: number,

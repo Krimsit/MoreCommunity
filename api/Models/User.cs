@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace api.Models;
 
@@ -23,7 +22,7 @@ public class RegisterModel
     public string Username { get; set; } = String.Empty;
     public string Email { get; set; } = String.Empty;
     public string Password { get; set; } = String.Empty;
-} 
+}
 
 public class LoginModel
 {
@@ -45,4 +44,4 @@ public class UpdateUser
     public string? Username { get; set; } = String.Empty;
     public string? Email { get; set; } = String.Empty;
     public string? NewPassword { get; set; } = String.Empty;
-} 
+}

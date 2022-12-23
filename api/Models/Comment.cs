@@ -8,16 +8,15 @@ interface IComment
     string Content { get; set; }
 }
 
-public class Comment: IComment
+public class Comment : IComment
 {
     public long Id { get; set; }
     public string Avatar { get; set; } = String.Empty;
     public string Username { get; set; } = String.Empty;
     public string Content { get; set; } = String.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public long PostId { get; set; }
-    [ForeignKey(("PostId"))]
-    public virtual Post? Post { get; set; }
+    [ForeignKey(("PostId"))] public virtual Post? Post { get; set; }
 }
 
 public class CommentModel : IComment
@@ -32,5 +31,5 @@ public class CommentResponse : IComment
     public string Avatar { get; set; } = String.Empty;
     public string? Username { get; set; } = String.Empty;
     public string Content { get; set; } = String.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

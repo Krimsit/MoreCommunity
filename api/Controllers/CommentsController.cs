@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 using api.Helpers;
 using api.Models;
 
@@ -16,31 +15,32 @@ public class CommentController : ControllerBase
     private readonly DataContext _context;
     private readonly UserManager<User> _userManager;
     private GetResponseObject _getResponseObject = new GetResponseObject();
-    
+
     public CommentController(DataContext context, UserManager<User> userManager)
     {
         _context = context;
         _userManager = userManager;
     }
-    
+
     [HttpGet]
     public async Task<ActionResult<List<CommentResponse>>> GetAll(long communityId, long postId)
     {
         Community? community = await _context.Communities.Include("Posts")
             .Where(item => item.Id == communityId).FirstOrDefaultAsync();
-        
+
         if (community == null)
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти сообщество", null));
         }
-        
-        Post? post = await _context.Posts.Include("Comments").Where(item => item.Id == postId && item.CommunityId == communityId).FirstOrDefaultAsync();
-        
+
+        Post? post = await _context.Posts.Include("Comments")
+            .Where(item => item.Id == postId && item.CommunityId == communityId).FirstOrDefaultAsync();
+
         if (post == null)
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти пост", null));
         }
-        
+
         IOrderedEnumerable<Comment> comments = post.Comments.OrderBy(item => item.CreatedAt);
         List<CommentResponse> commentResponses = new List<CommentResponse>();
 
@@ -48,13 +48,14 @@ public class CommentController : ControllerBase
         {
             commentResponses.Add(_getResponseObject.Comment(comment));
         }
-        
+
         return Ok(new QueryResult<List<CommentResponse>>(200, "Запрос успешно выполнен", commentResponses));
     }
-    
+
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<QueryResult<CommentResponse>>> Create(long communityId, long postId, [FromBody] CommentModel model)
+    public async Task<ActionResult<QueryResult<CommentResponse>>> Create(long communityId, long postId,
+        [FromBody] CommentModel model)
     {
         string userId = GetUserIdFromJwtToken();
         User? user = await _userManager.FindByIdAsync(userId);
@@ -73,9 +74,10 @@ public class CommentController : ControllerBase
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти сообщество", null));
         }
-        
-        Post? post = await _context.Posts.Include("Comments").Where(item => item.Id == postId && item.CommunityId == communityId).FirstOrDefaultAsync();
-        
+
+        Post? post = await _context.Posts.Include("Comments")
+            .Where(item => item.Id == postId && item.CommunityId == communityId).FirstOrDefaultAsync();
+
         if (post == null)
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти пост", null));
@@ -106,7 +108,7 @@ public class CommentController : ControllerBase
         return StatusCode(StatusCodes.Status201Created,
             new QueryResult<CommentResponse?>(200, "Комментарий успешно создан", _getResponseObject.Comment(comment)));
     }
-    
+
     [NonAction]
     private string GetUserIdFromJwtToken()
     {
