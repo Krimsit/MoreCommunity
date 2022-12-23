@@ -4,14 +4,13 @@ import { UseFormReturn } from "react-hook-form"
 import { useUpload } from "dto/hooks/Files"
 import { useCreate, useUpdate } from "dto/hooks/Posts"
 
-import { Modal, Button, Upload, UploadFileProps } from "@ui"
+import { Button, Modal, Upload, UploadFileProps } from "@ui"
 import { MdUpload } from "react-icons/md"
 
 import { PostPost } from "dto/types/Posts"
-import { File as IFile } from "dto/types/Files"
 import { CreatePostProps } from "./PostSettings.interface"
 
-import { Base, Title, Input, Textarea, Form } from "./PostSettings.styles"
+import { Base, Form, Input, Textarea, Title } from "./PostSettings.styles"
 import * as yup from "yup"
 
 const validationSchema = yup.object().shape({
@@ -25,7 +24,8 @@ const CreatePost: FC<CreatePostProps> = ({
   initialValues,
   communityId,
   postId,
-  communityName
+  communityName,
+  onSuccess
 }) => {
   const { mutate: upload, status: uploadStatus } = useUpload()
   const { mutateAsync: create, status: createStatus } = useCreate(communityId)
@@ -36,17 +36,18 @@ const CreatePost: FC<CreatePostProps> = ({
 
   const [formMethods, setFormMethods] = useState<UseFormReturn | null>(null)
 
-  const handleUploadFiles = async (id: number, files?: UploadFileProps[]) => {
-    if (files?.length) {
-      files.forEach((file) => {
-        upload({
-          ...file,
-          folder: `communities/${communityName}/posts_${id}`,
-          postId: id
+  const handleUploadFiles = (id: number, files?: UploadFileProps[]) =>
+    new Promise((resolve) => {
+      if (files?.length) {
+        files.forEach((file) => {
+          upload({
+            ...file,
+            folder: `communities/${communityName}/posts_${id}`,
+            postId: id
+          })
         })
-      })
-    }
-  }
+      }
+    })
 
   const handleSubmit = async (
     values: PostPost & { files?: UploadFileProps[] }
@@ -58,7 +59,9 @@ const CreatePost: FC<CreatePostProps> = ({
 
     postId
       ? update(_data)
-          .then((post) => handleUploadFiles(post.id, values.files))
+          .then((post) =>
+            handleUploadFiles(post.id, values.files).then(() => onSuccess())
+          )
           .catch((error: { [key: string]: string }) => {
             Object.keys(error).forEach((key) => {
               formMethods?.setError(key, {
@@ -68,7 +71,9 @@ const CreatePost: FC<CreatePostProps> = ({
             })
           })
       : create(_data)
-          .then((post) => handleUploadFiles(post.id, values.files))
+          .then((post) =>
+            handleUploadFiles(post.id, values.files).then(() => onSuccess())
+          )
           .catch((error: { [key: string]: string }) => {
             Object.keys(error).forEach((key) => {
               formMethods?.setError(key, {

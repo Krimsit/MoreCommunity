@@ -8,4 +8,5 @@ export interface CreatePostProps {
   communityName: string
   postId?: number
   initialValues?: PostPost & { files?: File[] }
+  onSuccess: () => void
 }

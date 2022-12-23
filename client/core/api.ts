@@ -3,31 +3,30 @@ import MockAdapter from "axios-mock-adapter"
 
 import { AuthenticationFakeData } from "dto/fakeData/Authentication"
 import {
-  UserFakeData,
-  UserSettingsFakeData,
   UserDeleteFakeData,
+  UserFakeData,
+  UserFollowedCommunitiesFakeData,
   UserMyCommunitiesFakeData,
-  UserFollowedCommunitiesFakeData
+  UserSettingsFakeData
 } from "dto/fakeData/User"
 import {
-  PostsFakeData,
+  PostDeleteFakeData,
   PostFakeData,
   PostLikeFakeData,
-    PostDeleteFakeData
+  PostsFakeData
 } from "dto/fakeData/Posts"
 import {
   CommunitiesFakeData,
+  CommunityDeleteFakeData,
   CommunityFakeData,
-  CommunityFollowFakeData,
-  CommunityDeleteFakeData
+  CommunityFollowFakeData
 } from "dto/fakeData/Communities"
 import {
-  LastCommentsFakeData,
   CommentsFakeData,
-  CreateCommentFakeData
+  CreateCommentFakeData,
+  LastCommentsFakeData
 } from "dto/fakeData/Comments"
 import { FilesFakeData, FileUploadFakeData } from "dto/fakeData/Files"
-import * as process from 'process';
 
 const axiosConfig = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}`,
@@ -91,7 +90,7 @@ fakeApi.onPost("/files").reply(200, FileUploadFakeData)
 
 fakeApi.restore()
 
-if (process.env.NODE_ENV === "production" || !process.env.NEXT_PUBLIC_WITH_FAKE_DATA) {
+if (process.env.NODE_ENV === "production") {
   fakeApi.restore()
 }
 

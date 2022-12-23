@@ -21,4 +21,5 @@ export interface InputProps {
   styleType?: InputStyleType
   validation?: InputValidation
   autoComplete?: boolean
+  readOnly?: boolean
 }

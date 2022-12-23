@@ -12,7 +12,8 @@ export const TestCommunity: Community = {
     "Nihil nostrum eos voluptatibus maxime nam reprehenderit. Fuga officiis perspiciatis quia et possimus voluptatem magni iure rerum. Dolorem consequatur unde quos quasi eos. Voluptatum ut dolore commodi exercitationem quis accusantium animi officiis. Maiores et totam harum unde voluptas quaerat et repudiandae tempore.",
   followers: 169,
   keywords: ["Tactics", "Infrastructure", "Florida"],
-  isOwner: true
+  isOwner: true,
+  streamId: "teststream123"
 }
 
 export const CommunitiesFakeData: Response<Community[]> = {

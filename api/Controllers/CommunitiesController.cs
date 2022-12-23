@@ -68,6 +68,7 @@ public class CommunitiesController : ControllerBase
             Keywords = model.Keywords,
             Name = model.Name,
             OwnerId = user.Id,
+            StreamId = String.Empty
         };
 
         _context.Communities.Add(community);

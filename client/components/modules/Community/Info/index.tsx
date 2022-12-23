@@ -1,13 +1,18 @@
 import { FC, useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { v4 as uuid } from "uuid"
+import Link from "next/link"
 import { useMediaQuery } from "usehooks-ts"
 
-import { useById, useFollow } from "dto/hooks/Communities"
+import { streamSocket } from "@core"
 
-import { Avatar, Tag } from "@ui"
+import { useById, useFollow } from "dto/hooks/Communities"
+import { useStop } from "dto/hooks/Stream"
+
+import { Avatar, Button, Tag } from "@ui"
 import { LikeButton } from "@container"
 import CommunitySettings from "components/modules/CommunitySettings"
+import StreamSettings from "components/modules/StreamSettings"
 import { MdPlayArrow } from "react-icons/md"
 
 import {
@@ -28,17 +33,26 @@ const Info: FC<{ communityId: number }> = ({ communityId }) => {
 
   const { data: communityData, refetch } = useById(communityId)
   const { mutateAsync: follow } = useFollow(communityId)
+  const { mutate: stopStream } = useStop(communityId)
 
+  const [stream, setStream] = useState<boolean>(!!communityData?.streamId)
   const [isShowAll, setIsShowAll] = useState<boolean>(!isAdaptive)
   const [isLike, setIsLike] = useState<boolean>(!!communityData?.isMyFollow)
   const [likeCount, setLikeCount] = useState<number>(
     communityData?.followers || 0
   )
   const [isOpenSettings, setIsOpenSettings] = useState<boolean>(false)
+  const [isOpenStreamSettings, setIsOpenStreamSettings] =
+    useState<boolean>(false)
 
   const settingsReducer = {
     open: () => setIsOpenSettings(true),
     close: () => setIsOpenSettings(false)
+  }
+
+  const streamSettingsReducer = {
+    open: () => setIsOpenStreamSettings(true),
+    close: () => setIsOpenStreamSettings(false)
   }
 
   const handleToggleShowAll = () => setIsShowAll(!isShowAll)
@@ -50,6 +64,7 @@ const Info: FC<{ communityId: number }> = ({ communityId }) => {
     })
 
   const handleUpdateCommunity = () => {
+    streamSettingsReducer.close()
     settingsReducer.close()
     refetch()
   }
@@ -62,6 +77,20 @@ const Info: FC<{ communityId: number }> = ({ communityId }) => {
   useEffect(() => {
     setIsShowAll(!isAdaptive)
   }, [isAdaptive])
+
+  useEffect(() => {
+    setIsLike(!!communityData?.isMyFollow)
+    setLikeCount(communityData?.followers || 0)
+    setStream(!!communityData?.streamId)
+  }, [communityData])
+
+  useEffect(() => {
+    streamSocket.on(
+      "COMMUNITY:STREAM_STATUS",
+      (data: { communityId: number; isOnline: boolean }) =>
+        data.communityId === communityId && setStream(data.isOnline)
+    )
+  }, [communityId])
 
   return (
     <>
@@ -94,15 +123,30 @@ const Info: FC<{ communityId: number }> = ({ communityId }) => {
             <CardSettings onClick={settingsReducer.open} />
           )}
         </Card>
+        <Link
+          href={{
+            pathname: "/communities/[id]/stream",
+            query: { id: communityId }
+          }}>
+          <StreamButton>
+            <StreamStatus isOnline={stream}>
+              <span></span>
+              Стрим {stream ? "онлайн" : "оффлайн"}
+            </StreamStatus>
+            <MdPlayArrow />
+          </StreamButton>
+        </Link>
+        {communityData?.isOwner && (
+          <Button
+            styleType="dark"
+            onClick={() =>
+              stream ? stopStream(null) : streamSettingsReducer.open()
+            }>
+            {!stream ? "Запустить трансляцию" : "Остановить трансляцию"}
+          </Button>
+        )}
         {isShowAll && (
           <>
-            <StreamButton>
-              <StreamStatus isOnline={!!communityData?.isStreamOnline}>
-                <span></span>
-                Стрим {communityData?.isStreamOnline ? "онлайн" : "оффлайн"}
-              </StreamStatus>
-              <MdPlayArrow />
-            </StreamButton>
             <Description>
               <h3>Об авторе</h3>
               <span />
@@ -129,6 +173,12 @@ const Info: FC<{ communityId: number }> = ({ communityId }) => {
         communityId={communityId}
         onSuccess={handleUpdateCommunity}
         onDelete={handleDeleteCommunity}
+      />
+      <StreamSettings
+        communityId={communityId}
+        open={isOpenStreamSettings}
+        onClose={streamSettingsReducer.close}
+        onSuccess={handleUpdateCommunity}
       />
     </>
   )

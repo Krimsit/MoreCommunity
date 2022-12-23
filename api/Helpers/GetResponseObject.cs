@@ -16,7 +16,8 @@ public class GetResponseObject
             Keywords = community.Keywords,
             Name = community.Name,
             isOwner = community.OwnerId == user?.Id,
-            isMyFollow = user?.FollowedCommunities.Contains(community.Id) ?? false
+            isMyFollow = user?.FollowedCommunities.Contains(community.Id) ?? false,
+            StreamId = community.StreamId
         };
 
         return responseCommunity;
