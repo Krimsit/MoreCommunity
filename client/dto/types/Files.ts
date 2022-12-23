@@ -6,3 +6,16 @@ export type File = {
   url: string
   name: string
 }
+
+export interface PayloadFile {
+  file: string
+  folder?: string
+  type: FileType
+  name: string
+}
+
+export interface PayloadPostFiles {
+  postId: number
+  folder: string
+  files: PayloadFile[]
+}

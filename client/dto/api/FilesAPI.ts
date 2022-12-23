@@ -2,18 +2,18 @@ import { AxiosResponse } from "axios"
 
 import { api } from "@core"
 
-import { File } from "dto/types/Files"
+import { File, PayloadFile, PayloadPostFiles } from "dto/types/Files"
 import { Response } from "types/default"
 
 const _api = {
-  upload: (file: FormData): Promise<Response<File>> =>
+  upload: (data: PayloadFile): Promise<Response<File>> =>
     api
-      .post("/files", file, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      })
-      .then((res: AxiosResponse<Response<File>>) => res.data)
+      .post("/files", data)
+      .then((res: AxiosResponse<Response<File>>) => res.data),
+  uploadPost: (data: PayloadPostFiles): Promise<Response<boolean>> =>
+    api
+      .post("/files/post", data)
+      .then((res: AxiosResponse<Response<boolean>>) => res.data)
 }
 
 export default _api

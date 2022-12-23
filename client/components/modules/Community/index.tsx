@@ -70,7 +70,6 @@ const Community: FC = () => {
           onClose={createPostReducer.close}
           onSuccess={handleUpdatePosts}
           communityId={communityData?.id || 0}
-          communityName={communityData?.name || ""}
         />
       )}
     </>

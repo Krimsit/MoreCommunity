@@ -43,8 +43,7 @@ const Post: FC<{
   open: boolean
   onClose: () => void
 }> = ({ open, onClose }) => {
-  const { postId, communityId, communityName, isOwner } =
-    useContext(PostContext)
+  const { postId, communityId, isOwner } = useContext(PostContext)
 
   const isMobile = useMediaQuery("(max-width: 768px)")
 
@@ -216,7 +215,6 @@ const Post: FC<{
           onClose={settingReducer.close}
           onSuccess={handleUpdatePost}
           communityId={communityId}
-          communityName={communityName}
           postId={postId}
           initialValues={{
             id: postData?.id || 0,

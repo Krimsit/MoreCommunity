@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 using api.Helpers;
 using api.Models;
 
@@ -236,7 +235,7 @@ public class PostsController : ControllerBase
         {
             return NotFound(new QueryResult<string>(404, "Не удалось найти пост", null));
         }
-        
+
         bool isMyLike;
 
         if (post.Likes.Contains(userId))
@@ -265,9 +264,10 @@ public class PostsController : ControllerBase
                 new QueryResult<string>(500, "Возникли ошибки при лайке поста", null));
         }
 
-        return Ok(new QueryResult<LikePost>(200, "Запрос успешно выполнен", new LikePost(){ isMyLike = isMyLike, count = post.Likes.Length}));
+        return Ok(new QueryResult<LikePost>(200, "Запрос успешно выполнен",
+            new LikePost() { isMyLike = isMyLike, count = post.Likes.Length }));
     }
-    
+
     [HttpGet("{id}/files")]
     public async Task<ActionResult<QueryResult<PostResponse>>> GetFiles(long communityId, long id)
     {

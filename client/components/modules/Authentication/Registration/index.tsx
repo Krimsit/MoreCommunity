@@ -24,6 +24,15 @@ const validationSchema = yup.object().shape({
   password: yup.string().required("Введите пароль!")
 })
 
+const toBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () =>
+      resolve(reader?.result ? reader.result.toString() : "")
+    reader.onerror = (error) => reject(error)
+  })
+
 const Authorization: FC<{
   changeForm: (type: "authorization" | "registration") => void
 }> = ({ changeForm }) => {
@@ -40,8 +49,10 @@ const Authorization: FC<{
     let _avatar: string | null = null
 
     await upload({
-      ...values.avatar[0],
-      folder: `users/avatars`
+      folder: `users/avatars`,
+      type: values.avatar[0].type,
+      file: await toBase64(values.avatar[0].originalFile),
+      name: values.avatar[0].name
     }).then((result) => {
       _avatar = result.url
     })

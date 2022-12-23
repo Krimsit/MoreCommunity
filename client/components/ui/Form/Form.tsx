@@ -90,11 +90,7 @@ const Form: FC<FormProps> = ({
     resolver: yupSchema && yupResolver(yupSchema)
   })
 
-  const { handleSubmit, reset } = method
-
-  useEffect(() => {
-    reset(defaultValues)
-  }, [defaultValues, reset])
+  const { handleSubmit } = method
 
   useEffect(() => {
     onInit && onInit(method)
