@@ -42,6 +42,15 @@ const validationSchema = yup.object().shape({
   keywords: yup.array().min(1, "Введите хотя бы одно ключевое слово!")
 })
 
+const toBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () =>
+      resolve(reader?.result ? reader.result.toString() : "")
+    reader.onerror = (error) => reject(error)
+  })
+
 const CreateCommunity: FC<CreateCommunityProps> = ({
   open,
   onClose,
@@ -67,6 +76,13 @@ const CreateCommunity: FC<CreateCommunityProps> = ({
   const [keywordValue, setKeywordValue] = useState<string>("")
   const [keywordsError, setKeywordsError] = useState<string>("")
 
+  const handleClose = () => {
+    onClose()
+    setKeywords([])
+    setKeywordValue("")
+    formMethods?.reset()
+  }
+
   const handleSubmit = async (
     values: Omit<PostCommunity, "keywords" | "avatar" | "banner"> & {
       avatar: UploadFileProps[] | string
@@ -78,8 +94,10 @@ const CreateCommunity: FC<CreateCommunityProps> = ({
 
     if (typeof values.avatar !== "string") {
       await upload({
-        ...values.avatar[0],
-        folder: `communities/avatars/${values.name}`
+        folder: `communities/avatars/${values.name}`,
+        file: await toBase64(values.avatar[0].originalFile),
+        name: values.avatar[0].name,
+        type: values.avatar[0].type
       }).then((result) => {
         _avatar = result.url
       })
@@ -89,8 +107,10 @@ const CreateCommunity: FC<CreateCommunityProps> = ({
 
     if (typeof values.banner !== "string") {
       await upload({
-        ...values.banner[0],
-        folder: `communities/banners/${values.name}`
+        folder: `communities/banners/${values.name}`,
+        file: await toBase64(values.banner[0].originalFile),
+        name: values.banner[0].name,
+        type: values.banner[0].type
       }).then((result) => {
         _banner = result.url
       })
@@ -183,7 +203,7 @@ const CreateCommunity: FC<CreateCommunityProps> = ({
   }, [formMethods?.formState.errors])
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={handleClose}>
       <Base>
         <Title>
           {initialValues ? "Редактирование сообщества" : "Создание сообщества"}

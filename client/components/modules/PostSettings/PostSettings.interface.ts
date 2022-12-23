@@ -5,7 +5,6 @@ export interface CreatePostProps {
   open: boolean
   onClose: () => void
   communityId: number
-  communityName: string
   postId?: number
   initialValues?: PostPost & { files?: File[] }
   onSuccess: () => void

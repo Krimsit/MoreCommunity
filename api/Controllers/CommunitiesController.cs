@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 using api.Helpers;
 using api.Models;
 
@@ -31,7 +30,7 @@ public class CommunitiesController : ControllerBase
     {
         string userId = GetUserIdFromJwtToken();
         User? user = await _userManager.FindByIdAsync(userId);
-        
+
         List<Community> communities = await _context.Communities.ToListAsync();
 
         List<ResponseCommunity> responseCommunities = new List<ResponseCommunity>();
@@ -234,13 +233,13 @@ public class CommunitiesController : ControllerBase
         return Ok(new QueryResult<FollowCommunity>(200, "Запрос успешно выполнен",
             new FollowCommunity() { isMyFollow = isMyFollow, count = community.Followers.Length }));
     }
-    
+
     [HttpGet("popular")]
     public async Task<ActionResult<QueryResult<List<ResponseCommunity>>>> GetPopulars()
     {
         string userId = GetUserIdFromJwtToken();
         User? user = await _userManager.FindByIdAsync(userId);
-        
+
         List<Community> communities = await _context.Communities.ToListAsync();
 
         List<ResponseCommunity> responseCommunities = new List<ResponseCommunity>();

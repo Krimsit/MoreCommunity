@@ -25,6 +25,15 @@ import {
   Title
 } from "./UserSettings.styles"
 
+const toBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () =>
+      resolve(reader?.result ? reader.result.toString() : "")
+    reader.onerror = (error) => reject(error)
+  })
+
 const validationSchema = yup.object().shape({
   avatar: yup.array().length(1, "Загрузите аватарку!"),
   username: yup.string().required("Введите логин!"),
@@ -54,8 +63,10 @@ const UserSettings: FC<UserSettingsProps> = ({ open, onClose, userId }) => {
 
     if (typeof values.avatar !== "string") {
       await upload({
-        ...values.avatar[0],
-        folder: `users/${values.username}`
+        folder: `users/${values.username}`,
+        file: await toBase64(values.avatar[0].originalFile),
+        name: values.avatar[0].name,
+        type: values.avatar[0].type
       }).then((result) => {
         _avatar = result.url
       })

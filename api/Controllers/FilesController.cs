@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers;
 
+[ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
 public class FilesController : ControllerBase
@@ -27,24 +28,15 @@ public class FilesController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> Upload([FromForm] CreateUpload model)
+    public async Task<IActionResult> Upload([FromBody] CreateUpload model)
     {
-        string userId = GetUserIdFromJwtToken();
-        User? user = await _userManager.FindByIdAsync(userId);
-
-        if (user == null)
-        {
-            return StatusCode(StatusCodes.Status401Unauthorized,
-                new QueryResult<string>(401, "Возникли проблемы с авторизацией. Попробуйте перезайти", null));
-        }
-
         _cloudinary.Api.Secure = true;
 
         UploadResult uploadResult;
 
         var uploadParams = new AutoUploadParams()
         {
-            File = new FileDescription(model.File.FileName, GetFileByteArray(model.File)),
+            File = new FileDescription(model.Name, model.File),
             UseFilename = true,
             UniqueFilename = false,
             Overwrite = true,
@@ -56,8 +48,7 @@ public class FilesController : ControllerBase
         Upload file = new Upload()
         {
             Type = model.Type,
-            Name = model.File.FileName,
-            PostId = model.PostId ?? 0,
+            Name = model.Name,
             Url = uploadResult?.Url.ToString() ?? "",
         };
         
@@ -76,9 +67,12 @@ public class FilesController : ControllerBase
         return Ok(new QueryResult<Upload>(201, "Запрос успешно выполнен", file));
     }
     
-    [HttpPost("/post")]
-    public async Task<IActionResult> UploadPostFiles([FromForm] UploadPostFiles model)
+    [Authorize]
+    [HttpPost("post")]
+    public async Task<IActionResult> UploadPostFiles([FromBody] UploadPostFiles model)
     {
+        _cloudinary.Api.Secure = true;
+        
         string userId = GetUserIdFromJwtToken();
         User? user = await _userManager.FindByIdAsync(userId);
 
@@ -97,33 +91,34 @@ public class FilesController : ControllerBase
                 _context.Files.Remove(postFile);
             }
             
-            await _cloudinary.DeleteFolderAsync(model.Folder);
+            _cloudinary.DeleteFolder(model.Folder);
         }
+
+        foreach (UploadPostFile uploadedFile in model.files)
+        {
+            UploadResult uploadResult;
+
+            var uploadParams = new AutoUploadParams()
+            {
+                File = new FileDescription(uploadedFile.Name, uploadedFile.File),
+                UseFilename = true,
+                UniqueFilename = false,
+                Overwrite = true,
+                Folder = model.Folder ?? ""
+            };
+
+            uploadResult = _cloudinary.Upload(uploadParams);
+
+            Upload file = new Upload()
+            {
+                Type = uploadedFile.Type,
+                Name = uploadedFile.Name,
+                PostId = model.PostId,
+                Url = uploadResult?.Url.ToString() ?? "",
+            };
         
-        // _cloudinary.Api.Secure = true;
-        //
-        // UploadResult uploadResult;
-        //
-        // var uploadParams = new AutoUploadParams()
-        // {
-        //     File = new FileDescription(model.File.FileName, GetFileByteArray(model.File)),
-        //     UseFilename = true,
-        //     UniqueFilename = false,
-        //     Overwrite = true,
-        //     Folder = model.Folder ?? ""
-        // };
-        //
-        // uploadResult = _cloudinary.UploadAsync(uploadParams);
-        //
-        // Upload file = new Upload()
-        // {
-        //     Type = model.Type,
-        //     Name = model.File.FileName,
-        //     PostId = model.PostId ?? 0,
-        //     Url = uploadResult?.Url.ToString() ?? "",
-        // };
-        //
-        // await _context.Files.AddAsync(file);
+            await _context.Files.AddAsync(file);
+        }
 
         try
         {
@@ -135,7 +130,7 @@ public class FilesController : ControllerBase
                 new QueryResult<string>(500, "Возникли ошибки при обновлении сообщества", null));
         }
 
-        return Ok(new QueryResult<Upload>(201, "Запрос успешно выполнен", null));
+        return Ok(new QueryResult<bool>(201, "Запрос успешно выполнен", true));
     }
     
     [NonAction]
@@ -145,22 +140,5 @@ public class FilesController : ControllerBase
         string? userId = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value;
 
         return userId ?? "";
-    }
-
-    [NonAction]
-    private MemoryStream GetFileByteArray(IFormFile file)
-    {
-        byte[] destinationData;
-
-        using(MemoryStream ms = new MemoryStream())
-        {
-            file.CopyToAsync(ms);
-            destinationData = ms.ToArray();
-        }
-
-        using(var ms = new MemoryStream(destinationData))
-        {
-            return ms;
-        }
     }
 }

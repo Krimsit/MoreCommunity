@@ -1,8 +1,8 @@
 import {
-  useQuery,
-  UseQueryResult,
   useMutation,
-  UseMutationResult
+  UseMutationResult,
+  useQuery,
+  UseQueryResult
 } from "@tanstack/react-query"
 
 import streamAPI from "dto/api/StreamsAPI"
@@ -12,15 +12,12 @@ import { useUser } from "dto/hooks/User"
 
 import { Response } from "types/default"
 import {
-  Stream,
-  Message,
   CreateMessage,
+  Message,
   PostStartStream,
-  PostStopStream
+  Stream
 } from "dto/types/Streams"
 import { AxiosError } from "axios"
-import { Community, PostCommunity } from "../types/Communities"
-import communitiesAPI from "../api/CommunitiesAPI"
 
 export const useStream = (communityId: number): UseQueryResult<Stream> => {
   const { data, status } = useById(communityId)

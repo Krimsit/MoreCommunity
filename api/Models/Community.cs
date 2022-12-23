@@ -23,8 +23,7 @@ public class Community : ICommunity
     public string[] Keywords { get; set; } = new string[] { };
     public string StreamId { get; set; } = String.Empty;
     public string OwnerId { get; set; }
-    [ForeignKey(("OwnerId"))]
-    public User User { get; set; }
+    [ForeignKey(("OwnerId"))] public User User { get; set; }
     public List<Post?> Posts { get; set; }
 }
 
@@ -42,7 +41,7 @@ public class ResponseCommunity : ICommunity
 {
     public long Id { get; set; }
     public string Avatar { get; set; } = String.Empty;
-    
+
     public string? Banner { get; set; } = String.Empty;
     public string Name { get; set; } = String.Empty;
     public string Description { get; set; } = String.Empty;

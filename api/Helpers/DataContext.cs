@@ -1,12 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-
 using api.Models;
 
 namespace api.Helpers;
 
-public class DataContext: IdentityDbContext<User>
+public class DataContext : IdentityDbContext<User>
 {
     protected readonly IConfiguration Configuration;
 

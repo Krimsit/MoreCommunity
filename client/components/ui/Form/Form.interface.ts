@@ -12,7 +12,9 @@ export interface FormProps {
   validationMode?: "onBlur" | "onChange" | "onSubmit" | "onTouched"
   shouldFocusError?: boolean
   onSubmit?: (data: any) => void
-  defaultValues?: { [key: string]: any }
+  defaultValues?: {
+    [key: string]: any
+  }
   className?: string
   name?: string
   yupSchema?: any
